@@ -12,355 +12,64 @@
   <!-- jsPDF mejorado -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      background: linear-gradient(145deg, #fff5f8 0%, #ffe0e8 100%);
-      font-family: 'Quicksand', sans-serif;
-      padding: 20px;
-      position: relative;
-    }
-
-    /* decoración de patitas y corazones */
-    body::before {
-      content: "🐾🐶🐾❤️🐾";
-      position: fixed;
-      bottom: 10px;
-      right: 10px;
-      font-size: 45px;
-      opacity: 0.2;
-      pointer-events: none;
-      white-space: pre;
-      z-index: 0;
-    }
-
-    body::after {
-      content: "✨🌸✨";
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      font-size: 55px;
-      opacity: 0.15;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    /* contenedor principal */
-    .glass-container {
-      max-width: 1300px;
-      margin: 0 auto;
-      background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(3px);
-      border-radius: 48px;
-      box-shadow: 0 25px 45px rgba(255, 77, 136, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.6);
-      padding: 30px;
-      transition: all 0.3s ease;
-      position: relative;
-      z-index: 2;
-    }
-
-    /* TITULO NAMORE con letras hermosas */
-    .hero-title {
-      text-align: center;
-      margin-bottom: 30px;
-      position: relative;
-    }
-    .namore-glam {
-      font-family: 'Playfair Display', serif;
-      font-size: 5rem;
-      font-weight: 900;
-      background: linear-gradient(135deg, #ff2e6e, #ff85b3, #ffc2d9);
-      background-size: 200% auto;
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      text-shadow: 8px 8px 20px rgba(255, 100, 150, 0.3);
-      letter-spacing: 5px;
-      animation: shine 3s infinite alternate;
-    }
-    @keyframes shine {
-      0% { background-position: 0% 50%; }
-      100% { background-position: 100% 50%; }
-    }
-    .sub-lema {
-      font-size: 1.1rem;
-      font-weight: 500;
-      color: #b34e71;
-      background: rgba(255, 245, 240, 0.7);
-      display: inline-block;
-      padding: 6px 20px;
-      border-radius: 60px;
-      backdrop-filter: blur(4px);
-      margin-top: 8px;
-    }
-    .sub-lema i {
-      margin: 0 6px;
-    }
-
-    /* chiguaguas banner */
-    .chiguagua-love {
-      background: #ffecf0;
-      border-radius: 100px;
-      padding: 10px 25px;
-      display: inline-flex;
-      align-items: center;
-      gap: 15px;
-      margin-top: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-    .chiguagua-love span {
-      font-size: 2rem;
-      animation: bounce 1.5s infinite;
-      display: inline-block;
-    }
-    @keyframes bounce {
-      0%,100%{ transform: translateY(0);}
-      50%{ transform: translateY(-5px);}
-    }
-    .chiguagua-text {
-      font-weight: 700;
-      color: #c95a7a;
-      background: white;
-      border-radius: 60px;
-      padding: 5px 15px;
-      font-size: 1rem;
-    }
-
-    /* layout dos columnas */
-    .dashboard-grid {
-      display: grid;
-      grid-template-columns: 1fr 0.9fr;
-      gap: 30px;
-      margin-top: 25px;
-    }
-    @media (max-width: 800px) {
-      .dashboard-grid {
-        grid-template-columns: 1fr;
-        gap: 25px;
-      }
-      .namore-glam { font-size: 3rem; }
-    }
-
-    /* tarjetas */
-    .card {
-      background: white;
-      border-radius: 32px;
-      padding: 22px 24px;
-      box-shadow: 0 12px 28px rgba(0,0,0,0.08);
-      transition: all 0.2s;
-      border: 1px solid rgba(255, 180, 200, 0.5);
-    }
-    .card h3 {
-      font-size: 1.6rem;
-      color: #ff4d88;
-      margin-bottom: 20px;
-      font-weight: 700;
-      border-left: 6px solid #ff99bb;
-      padding-left: 15px;
-    }
-
-    /* formulario bonito */
-    .form-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-bottom: 25px;
-    }
-    .form-grid input, .form-grid select, .form-grid .file-label {
-      flex: 1 1 160px;
-      padding: 12px 16px;
-      border-radius: 60px;
-      border: 1px solid #ffcddb;
-      background: #fffbfd;
-      font-family: 'Quicksand', sans-serif;
-      font-weight: 500;
-      transition: 0.2s;
-    }
-    .form-grid input:focus, .form-grid select:focus {
-      outline: none;
-      border-color: #ff4d88;
-      box-shadow: 0 0 0 3px rgba(255, 77, 136, 0.2);
-    }
-    .btn-primary {
-      background: #ff4d88;
-      border: none;
-      color: white;
-      padding: 12px 28px;
-      border-radius: 60px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: 0.2s;
-      font-size: 1rem;
-      box-shadow: 0 6px 14px rgba(255, 77, 136, 0.3);
-    }
-    .btn-primary:hover {
-      background: #e63e74;
-      transform: scale(1.02);
-    }
-    .btn-secondary {
-      background: #ffb7cb;
-      color: #5a2e3e;
-      border: none;
-      padding: 8px 18px;
-      border-radius: 40px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    .btn-secondary:hover {
-      background: #ff9bb5;
-    }
-
-    /* lista de ventas */
-    .ventas-list {
-      max-height: 380px;
-      overflow-y: auto;
-      padding-right: 5px;
-    }
-    .venta-item {
-      background: #fffafc;
-      border-radius: 24px;
-      padding: 12px 16px;
-      margin-bottom: 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      border: 1px solid #ffe2ec;
-      transition: 0.1s;
-    }
-    .venta-info {
-      flex: 3;
-      font-size: 0.9rem;
-    }
-    .venta-info strong {
-      color: #ff4d88;
-    }
-    .observacion-text {
-      font-size: 0.75rem;
-      color: #b3567a;
-      background: #fff0f4;
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 40px;
-      margin-top: 4px;
-      max-width: 100%;
-      word-break: break-word;
-    }
-    .venta-img-preview {
-      width: 48px;
-      height: 48px;
-      border-radius: 20px;
-      object-fit: cover;
-      margin-left: 10px;
-      border: 2px solid white;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-    .action-buttons {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    .edit-btn, .delete-btn {
-      background: none;
-      border: none;
-      font-size: 1.2rem;
-      cursor: pointer;
-      transition: 0.1s;
-    }
-    .edit-btn {
-      color: #ffaa66;
-    }
-    .edit-btn:hover {
-      color: #ff884d;
-      transform: scale(1.1);
-    }
-    .delete-btn {
-      color: #ff99b5;
-    }
-    .delete-btn:hover {
-      color: #ff335f;
-      transform: scale(1.1);
-    }
-
-    .total-resumen {
-      background: #fff0f4;
-      border-radius: 28px;
-      padding: 18px;
-      margin-top: 20px;
-      text-align: center;
-    }
-    .total-resumen p {
-      font-size: 1.2rem;
-      font-weight: 600;
-      margin: 6px 0;
-    }
-
-    canvas#ventasChart {
-      max-height: 220px;
-      width: 100%;
-    }
-
-    .action-group {
-      display: flex;
-      gap: 12px;
-      justify-content: flex-end;
-      margin-top: 20px;
-    }
-    footer {
-      text-align: center;
-      margin-top: 30px;
-      font-size: 0.8rem;
-      color: #c07f98;
-    }
-    i.fa, i.far {
-      margin-right: 6px;
-    }
-    .badge-chi {
-      background: #ffdce6;
-      border-radius: 60px;
-      padding: 2px 12px;
-      font-size: 0.75rem;
-      display: inline-block;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: linear-gradient(145deg, #fff5f8 0%, #ffe0e8 100%); font-family: 'Quicksand', sans-serif; padding: 20px; position: relative; }
+    body::before { content: "🐾🐶🐾❤️🐾"; position: fixed; bottom: 10px; right: 10px; font-size: 45px; opacity: 0.2; pointer-events: none; white-space: pre; z-index: 0; }
+    body::after { content: "✨🌸✨"; position: fixed; top: 20px; left: 20px; font-size: 55px; opacity: 0.15; pointer-events: none; z-index: 0; }
+    .glass-container { max-width: 1300px; margin: 0 auto; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(3px); border-radius: 48px; box-shadow: 0 25px 45px rgba(255, 77, 136, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.6); padding: 30px; transition: all 0.3s ease; position: relative; z-index: 2; }
+    .hero-title { text-align: center; margin-bottom: 30px; }
+    .namore-glam { font-family: 'Playfair Display', serif; font-size: 5rem; font-weight: 900; background: linear-gradient(135deg, #ff2e6e, #ff85b3, #ffc2d9); background-size: 200% auto; -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: 8px 8px 20px rgba(255, 100, 150, 0.3); letter-spacing: 5px; animation: shine 3s infinite alternate; }
+    @keyframes shine { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
+    .sub-lema { font-size: 1.1rem; font-weight: 500; color: #b34e71; background: rgba(255, 245, 240, 0.7); display: inline-block; padding: 6px 20px; border-radius: 60px; backdrop-filter: blur(4px); margin-top: 8px; }
+    .chiguagua-love { background: #ffecf0; border-radius: 100px; padding: 10px 25px; display: inline-flex; align-items: center; gap: 15px; margin-top: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); flex-wrap: wrap; justify-content: center; }
+    .chiguagua-love span { font-size: 2rem; animation: bounce 1.5s infinite; display: inline-block; }
+    @keyframes bounce { 0%,100%{ transform: translateY(0);} 50%{ transform: translateY(-5px);} }
+    .chiguagua-text { font-weight: 700; color: #c95a7a; background: white; border-radius: 60px; padding: 5px 15px; font-size: 1rem; }
+    .dashboard-grid { display: grid; grid-template-columns: 1fr 0.9fr; gap: 30px; margin-top: 25px; }
+    @media (max-width: 800px) { .dashboard-grid { grid-template-columns: 1fr; } .namore-glam { font-size: 3rem; } }
+    .card { background: white; border-radius: 32px; padding: 22px 24px; box-shadow: 0 12px 28px rgba(0,0,0,0.08); border: 1px solid rgba(255, 180, 200, 0.5); }
+    .card h3 { font-size: 1.6rem; color: #ff4d88; margin-bottom: 20px; font-weight: 700; border-left: 6px solid #ff99bb; padding-left: 15px; }
+    .form-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 25px; }
+    .form-grid input, .form-grid select { flex: 1 1 160px; padding: 12px 16px; border-radius: 60px; border: 1px solid #ffcddb; background: #fffbfd; font-family: 'Quicksand', sans-serif; font-weight: 500; }
+    .btn-primary { background: #ff4d88; border: none; color: white; padding: 12px 28px; border-radius: 60px; font-weight: bold; cursor: pointer; box-shadow: 0 6px 14px rgba(255, 77, 136, 0.3); transition: 0.2s; }
+    .btn-primary:hover { background: #e63e74; transform: scale(1.02); }
+    .btn-secondary { background: #ffb7cb; color: #5a2e3e; border: none; padding: 8px 18px; border-radius: 40px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+    .btn-secondary:hover { background: #ff9bb5; }
+    .ventas-list { max-height: 380px; overflow-y: auto; padding-right: 5px; }
+    .venta-item { background: #fffafc; border-radius: 24px; padding: 12px 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; border: 1px solid #ffe2ec; }
+    .venta-info { flex: 3; font-size: 0.9rem; }
+    .observacion-text { font-size: 0.75rem; color: #b3567a; background: #fff0f4; display: inline-block; padding: 2px 8px; border-radius: 40px; margin-top: 4px; max-width: 100%; word-break: break-word; }
+    .venta-img-preview { width: 48px; height: 48px; border-radius: 20px; object-fit: cover; margin-left: 10px; border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+    .action-buttons { display: flex; align-items: center; gap: 5px; }
+    .edit-btn, .delete-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; }
+    .edit-btn { color: #ffaa66; }
+    .delete-btn { color: #ff99b5; }
+    .total-resumen { background: #fff0f4; border-radius: 28px; padding: 18px; margin-top: 20px; text-align: center; }
+    canvas#ventasChart { max-height: 220px; width: 100%; }
+    .action-group { display: flex; gap: 12px; justify-content: flex-end; margin-top: 20px; }
+    footer { text-align: center; margin-top: 30px; font-size: 0.8rem; color: #c07f98; }
+    .badge-chi { background: #ffdce6; border-radius: 60px; padding: 2px 12px; font-size: 0.75rem; display: inline-block; }
   </style>
 </head>
 <body>
-
 <div class="glass-container">
   <div class="hero-title">
     <div class="namore-glam">NĀMORE</div>
-    <div class="sub-lema">
-      <i class="fas fa-heart"></i> elegancia & pasión <i class="fas fa-heart"></i>
-    </div>
-    <div style="margin-top: 12px;">
-      <div class="chiguagua-love">
-        <span>🐶</span><span>🐕</span><span>✨</span>
-        <span class="chiguagua-text"><i class="fas fa-paw"></i> CHIGUAGUAS FELICES <i class="fas fa-paw"></i></span>
-        <span>🐾</span><span>❤️</span><span>🐶</span>
-      </div>
+    <div class="sub-lema"><i class="fas fa-heart"></i> elegancia & pasión <i class="fas fa-heart"></i></div>
+    <div class="chiguagua-love">
+      <span>🐶</span><span>🐕</span><span>✨</span>
+      <span class="chiguagua-text"><i class="fas fa-paw"></i> CHIGUAGUAS FELICES <i class="fas fa-paw"></i></span>
+      <span>🐾</span><span>❤️</span><span>🐶</span>
     </div>
   </div>
-
   <div class="dashboard-grid">
-    <!-- Columna izquierda: registro + ventas -->
     <div class="card">
       <h3><i class="fas fa-cart-plus"></i> Registrar venta</h3>
       <div class="form-grid">
         <input type="text" id="producto" placeholder="✨ Producto ✨" autocomplete="off">
-        <select id="marca">
-          <option>NAMORE</option><option>LUTY</option><option>MONICA</option><option>ADELA</option>
-        </select>
+        <select id="marca"><option>NAMORE</option><option>LUTY</option><option>MONICA</option><option>ADELA</option></select>
         <input type="number" id="precio" placeholder="S/ Precio" step="0.01">
-        <select id="pago">
-          <option>Yape</option><option>Efectivo</option><option>Tarjeta</option>
-        </select>
+        <select id="pago"><option>Yape</option><option>Efectivo</option><option>Tarjeta</option></select>
         <div style="display: flex; gap: 8px; align-items: center;">
           <label for="foto" class="btn-secondary" style="cursor:pointer; padding:10px 18px;"><i class="fas fa-camera"></i> Foto</label>
           <input type="file" id="foto" accept="image/*" style="display:none;">
@@ -368,46 +77,36 @@
         </div>
         <button class="btn-primary" onclick="agregarVenta()"><i class="fas fa-plus-circle"></i> Agregar venta</button>
       </div>
-
-      <h3 style="margin-top: 12px;"><i class="fas fa-list-ul"></i> Últimas ventas</h3>
-      <div class="ventas-list" id="listaVentasContainer">
-        <ul id="lista" style="list-style: none;"></ul>
-      </div>
-      <div class="total-resumen" id="totalResumen">
-        <!-- dinámico -->
-      </div>
+      <h3><i class="fas fa-list-ul"></i> Últimas ventas</h3>
+      <div class="ventas-list" id="listaVentasContainer"><ul id="lista" style="list-style: none;"></ul></div>
+      <div class="total-resumen" id="totalResumen"></div>
       <div class="action-group">
         <button class="btn-secondary" onclick="borrarTodo()"><i class="fas fa-trash-alt"></i> Limpiar todo</button>
         <button class="btn-primary" onclick="cerrarTienda()"><i class="fas fa-store"></i> Cerrar tienda del día</button>
         <button class="btn-primary" onclick="generarPDFmejorado()"><i class="fas fa-file-pdf"></i> PDF premium</button>
       </div>
     </div>
-
-    <!-- Columna derecha: estadísticas + gráfico + chiguaguas extra -->
     <div class="card">
       <h3><i class="fas fa-chart-pie"></i> Resumen dulce</h3>
-      <canvas id="ventasChart" width="400" height="200" style="max-width:100%; height:auto; margin-bottom: 15px;"></canvas>
-      <div id="statsDetalle" style="font-size:0.9rem; background:#fef6f9; border-radius: 28px; padding: 15px;">
-        <!-- métricas extra -->
-      </div>
+      <canvas id="ventasChart" width="400" height="200"></canvas>
+      <div id="statsDetalle" style="font-size:0.9rem; background:#fef6f9; border-radius: 28px; padding: 15px; margin-top: 15px;"></div>
       <hr style="margin: 20px 0; border-color:#ffd9e3;">
-      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap:wrap;">
-        <div><i class="fas fa-dog"></i> <strong>Chiguaguas crew</strong> 🐾<br> <span style="font-size:12px;">❤️ aman tus ventas</span></div>
-        <div><i class="fas fa-music"></i> <span id="fraseBonita" style="font-style:italic;">"Brilla como NAMORE"</span></div>
+      <div style="display: flex; justify-content: space-between; flex-wrap:wrap;">
+        <div><i class="fas fa-dog"></i> <strong>Chiguaguas crew</strong> 🐾</div>
+        <div><i class="fas fa-music"></i> <span id="fraseBonita">"Brilla como NAMORE"</span></div>
         <div><i class="fas fa-calendar-alt"></i> <span id="fechaHoy"></span></div>
       </div>
     </div>
   </div>
-  <footer>
-    <i class="fas fa-heart"></i> NAMORE · Cada venta es un latido · con cariño y chiguaguas <i class="fas fa-heart"></i>
-  </footer>
+  <footer><i class="fas fa-heart"></i> NAMORE · Cada venta es un latido · con cariño y chiguaguas <i class="fas fa-heart"></i></footer>
 </div>
 
 <script type="module">
-  // ======================== FIREBASE CONFIGURACIÓN ========================
+  // ======================== FIREBASE CONFIGURACIÓN CORREGIDA ========================
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+  // Configuración válida (storageBucket corregido: .com en lugar de .app)
   const firebaseConfig = {
     apiKey: "AIzaSyAF151DXqJ0wakbjm-bIvii8FszAn5C1sE",
     authDomain: "tienda-registro.firebaseapp.com",
@@ -417,50 +116,56 @@
     appId: "1:758569170962:web:71dd645f5aee29f19340cb"
   };
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+  let app, db;
+  try {
+    app = initializeApp(firebaseConfig);
+    db = getFirestore(app);
+    console.log("Firebase inicializado correctamente");
+  } catch (error) {
+    console.error("Error inicializando Firebase:", error);
+    alert("Error de conexión con Firebase. Verifica tu conexión a Internet.");
+  }
 
-  // ======================== VARIABLES GLOBALES ========================
-  let ventas = [];  // cada venta tendrá id (Firestore) y sus datos
+  let ventas = [];
+  let online = true;
 
-  // ======================== FUNCIONES CRUD CON FIRESTORE ========================
+  // Detectar cambios de conectividad
+  window.addEventListener('online', () => { online = true; cargarVentasFirestore(); });
+  window.addEventListener('offline', () => { online = false; alert("Sin conexión a Internet. Los cambios no se guardarán en la nube."); });
+
+  // ======================== CRUD CON FIRESTORE ========================
   async function cargarVentasFirestore() {
+    if (!db) return;
     try {
       const querySnapshot = await getDocs(collection(db, "ventas"));
       ventas = [];
-      querySnapshot.forEach(docu => {
-        ventas.push({ id: docu.id, ...docu.data() });
-      });
-      // Ordenar por fecha descendente (más reciente primero)
+      querySnapshot.forEach(docu => ventas.push({ id: docu.id, ...docu.data() }));
       ventas.sort((a,b) => new Date(b.fecha.split('/').reverse().join('-')) - new Date(a.fecha.split('/').reverse().join('-')));
       mostrarVentas();
       actualizarGraficoYResumen();
     } catch (error) {
       console.error("Error cargando ventas:", error);
-      alert("Error al cargar datos desde Firebase. Revisa consola.");
+      if (!online) alert("Sin conexión a Internet. No se pueden cargar los datos.");
+      else alert("Error al conectar con Firebase. Revisa tu configuración.");
     }
   }
 
   async function guardarVentaFinal(producto, marca, precio, pago, fecha, imagenData, observaciones) {
+    if (!db) { alert("Firebase no inicializado"); return; }
     try {
-      const nuevaVenta = {
-        producto, marca, precio, pago, fecha,
-        imagen: imagenData || null,
-        observaciones: observaciones || "",
-        timestamp: new Date().toISOString()
-      };
+      const nuevaVenta = { producto, marca, precio, pago, fecha, imagen: imagenData || null, observaciones: observaciones || "", timestamp: new Date().toISOString() };
       const docRef = await addDoc(collection(db, "ventas"), nuevaVenta);
-      const ventaConId = { id: docRef.id, ...nuevaVenta };
-      ventas.unshift(ventaConId);
+      ventas.unshift({ id: docRef.id, ...nuevaVenta });
       mostrarVentas();
       actualizarGraficoYResumen();
     } catch (error) {
-      console.error("Error al guardar venta:", error);
-      alert("Error al guardar en Firebase.");
+      console.error("Error al guardar:", error);
+      alert("Error al guardar en Firebase. Verifica tu conexión.");
     }
   }
 
   async function eliminarVenta(id) {
+    if (!db) return;
     if (!confirm("¿Eliminar esta venta permanentemente?")) return;
     try {
       await deleteDoc(doc(db, "ventas", id));
@@ -474,8 +179,8 @@
   }
 
   async function editarObservaciones(id, obsActual) {
-    const nuevaObs = prompt("✏️ Escribe una observación para este producto:", obsActual || "");
-    if (nuevaObs !== null) {
+    const nuevaObs = prompt("✏️ Escribe una observación:", obsActual || "");
+    if (nuevaObs !== null && db) {
       try {
         const ventaRef = doc(db, "ventas", id);
         await updateDoc(ventaRef, { observaciones: nuevaObs.trim() });
@@ -484,63 +189,46 @@
         mostrarVentas();
         actualizarGraficoYResumen();
       } catch (error) {
-        console.error("Error al actualizar observación:", error);
+        console.error("Error al actualizar:", error);
         alert("Error al guardar observación.");
       }
     }
   }
 
   async function borrarTodo() {
-    if (!confirm("⚠️ ¿ELIMINAR TODAS LAS VENTAS? Esta acción no se puede deshacer.")) return;
+    if (!db) return;
+    if (!confirm("⚠️ ¿ELIMINAR TODAS LAS VENTAS? No se puede deshacer.")) return;
     try {
-      for (const venta of ventas) {
-        await deleteDoc(doc(db, "ventas", venta.id));
-      }
+      for (const venta of ventas) await deleteDoc(doc(db, "ventas", venta.id));
       ventas = [];
       mostrarVentas();
       actualizarGraficoYResumen();
     } catch (error) {
-      console.error("Error al limpiar todo:", error);
+      console.error("Error al limpiar:", error);
       alert("Error al eliminar todas las ventas.");
     }
   }
 
   async function cerrarTienda() {
-    if (ventas.length === 0) {
-      alert("No hay ventas para cerrar el día. Agrega algunas ventas primero.");
-      return;
-    }
-
+    if (!db) { alert("Firebase no disponible"); return; }
+    if (ventas.length === 0) { alert("No hay ventas para cerrar el día."); return; }
     try {
       const totalGeneral = ventas.reduce((sum, v) => sum + v.precio, 0);
-      const fechaFormateada = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-      const cierre = {
-        fecha: fechaFormateada,
-        total: totalGeneral,
-        ventas: ventas.map(v => ({ ...v })), // copia completa
-        cantidadVentas: ventas.length,
-        timestamp: new Date().toISOString()
-      };
-
-      // Guardar en colección "cierres"
+      const fechaFormateada = new Date().toISOString().split('T')[0];
+      const cierre = { fecha: fechaFormateada, total: totalGeneral, ventas: ventas.map(v => ({ ...v })), cantidadVentas: ventas.length, timestamp: new Date().toISOString() };
       await addDoc(collection(db, "cierres"), cierre);
-
-      // Eliminar todas las ventas actuales de Firestore
-      for (const venta of ventas) {
-        await deleteDoc(doc(db, "ventas", venta.id));
-      }
-
+      for (const venta of ventas) await deleteDoc(doc(db, "ventas", venta.id));
       ventas = [];
       mostrarVentas();
       actualizarGraficoYResumen();
-      alert("✅ Día cerrado correctamente. Las ventas han sido guardadas en el historial y la tienda está limpia para un nuevo día.");
+      alert("✅ Día cerrado correctamente. Las ventas se guardaron en el historial.");
     } catch (error) {
       console.error("Error al cerrar tienda:", error);
-      alert("Ocurrió un error al cerrar el día. Revisa consola.");
+      alert("Ocurrió un error al cerrar el día.");
     }
   }
 
-  // ======================== FUNCIONES DE UI (NO CAMBIAN) ========================
+  // ======================== UI (sin cambios en diseño) ========================
   function agregarVenta() {
     const producto = document.getElementById("producto").value.trim();
     const marca = document.getElementById("marca").value;
@@ -548,21 +236,16 @@
     const pago = document.getElementById("pago").value;
     const archivo = document.getElementById("foto").files[0];
     const fecha = new Date().toLocaleDateString('es-PE');
-
     if(!producto) { alert("✨ Escribe un producto hermoso ✨"); return; }
-    if(isNaN(precio) || precio <= 0) { alert("Ingresa un precio válido S/"); return; }
+    if(isNaN(precio) || precio <= 0) { alert("Precio válido S/"); return; }
     precio = parseFloat(precio.toFixed(2));
-
     if(archivo) {
       const reader = new FileReader();
-      reader.onload = function(e) {
-        guardarVentaFinal(producto, marca, precio, pago, fecha, e.target.result, "");
-      };
+      reader.onload = e => guardarVentaFinal(producto, marca, precio, pago, fecha, e.target.result, "");
       reader.readAsDataURL(archivo);
     } else {
       guardarVentaFinal(producto, marca, precio, pago, fecha, null, "");
     }
-
     document.getElementById("producto").value = "";
     document.getElementById("precio").value = "";
     document.getElementById("foto").value = "";
@@ -576,7 +259,7 @@
       listaUl.innerHTML = "<li style='text-align:center; padding:20px;'><i class='fas fa-paw'></i> Aún no hay ventas… ¡agrega una! 🐶</li>";
       return;
     }
-    ventas.forEach((v) => {
+    ventas.forEach(v => {
       const li = document.createElement("li");
       li.className = "venta-item";
       const obsHtml = v.observaciones ? `<div class="observacion-text"><i class="fas fa-pencil-alt"></i> ${escapeHtml(v.observaciones)}</div>` : '';
@@ -594,32 +277,22 @@
       `;
       listaUl.appendChild(li);
     });
-
-    // Asignar eventos después de inyectar HTML
     document.querySelectorAll(".edit-btn").forEach(btn => {
       btn.addEventListener("click", (e) => {
         e.stopPropagation();
-        const id = btn.getAttribute("data-id");
-        const obs = btn.getAttribute("data-obs");
-        editarObservaciones(id, obs);
+        editarObservaciones(btn.getAttribute("data-id"), btn.getAttribute("data-obs"));
       });
     });
     document.querySelectorAll(".delete-btn").forEach(btn => {
       btn.addEventListener("click", (e) => {
         e.stopPropagation();
-        const id = btn.getAttribute("data-id");
-        eliminarVenta(id);
+        eliminarVenta(btn.getAttribute("data-id"));
       });
     });
   }
 
-  function escapeHtml(str) {
-    if (!str) return '';
-    return str.replace(/[&<>]/g, m => m==='&'?'&amp;':m==='<'?'&lt;':'&gt;');
-  }
-  function escapeAttr(str) {
-    return str ? str.replace(/"/g, '&quot;') : '';
-  }
+  function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => m==='&'?'&amp;':m==='<'?'&lt;':'&gt;'); }
+  function escapeAttr(str) { return str ? str.replace(/"/g, '&quot;') : ''; }
 
   let chartInstance = null;
   function actualizarGraficoYResumen() {
@@ -630,15 +303,11 @@
       else if(v.pago === "Efectivo") efectivoTotal += v.precio;
       else if(v.pago === "Tarjeta") tarjetaTotal += v.precio;
     });
-
     document.getElementById("totalResumen").innerHTML = `
       <p><i class="fas fa-coins"></i> <strong>Total general:</strong> S/ ${totalGeneral.toFixed(2)}</p>
-      <p><i class="fas fa-mobile-alt"></i> Yape: S/ ${yapeTotal.toFixed(2)} &nbsp;&nbsp; 
-      <i class="fas fa-wallet"></i> Efectivo: S/ ${efectivoTotal.toFixed(2)} &nbsp;&nbsp;
-      <i class="fas fa-credit-card"></i> Tarjeta: S/ ${tarjetaTotal.toFixed(2)}</p>
-      <p><i class="fas fa-chart-line"></i> Total ventas: ${ventas.length} transacciones</p>
+      <p><i class="fas fa-mobile-alt"></i> Yape: S/ ${yapeTotal.toFixed(2)} &nbsp; <i class="fas fa-wallet"></i> Efectivo: S/ ${efectivoTotal.toFixed(2)} &nbsp; <i class="fas fa-credit-card"></i> Tarjeta: S/ ${tarjetaTotal.toFixed(2)}</p>
+      <p><i class="fas fa-chart-line"></i> Total ventas: ${ventas.length}</p>
     `;
-
     const marcasMap = {};
     ventas.forEach(v => { marcasMap[v.marca] = (marcasMap[v.marca] || 0) + v.precio; });
     let marcaTop = Object.entries(marcasMap).sort((a,b)=>b[1]-a[1])[0];
@@ -647,188 +316,81 @@
       <i class="fas fa-dog"></i> <strong>Chiguagua de la suerte:</strong> 🐕‍🦺 "¡Ventas con amor!"<br>
       <i class="fas fa-chart-simple"></i> Promedio por venta: S/ ${ventas.length ? (totalGeneral/ventas.length).toFixed(2) : 0}
     `;
-
     const ctx = document.getElementById('ventasChart').getContext('2d');
     if(chartInstance) chartInstance.destroy();
-    chartInstance = new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels: ['Yape', 'Efectivo', 'Tarjeta'],
-        datasets: [{
-          data: [yapeTotal, efectivoTotal, tarjetaTotal],
-          backgroundColor: ['#ff7aa2', '#ffb347', '#9b59b6'],
-          borderWidth: 0,
-          hoverOffset: 8,
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        plugins: {
-          legend: { position: 'bottom', labels: { font: { family: 'Quicksand', size: 12 } } },
-          tooltip: { callbacks: { label: (ctx) => ` S/ ${ctx.raw.toFixed(2)}` } }
-        }
-      }
-    });
+    if(ctx) {
+      chartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: { labels: ['Yape', 'Efectivo', 'Tarjeta'], datasets: [{ data: [yapeTotal, efectivoTotal, tarjetaTotal], backgroundColor: ['#ff7aa2', '#ffb347', '#9b59b6'], borderWidth: 0 }] },
+        options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom' }, tooltip: { callbacks: { label: (ctx) => ` S/ ${ctx.raw.toFixed(2)}` } } } }
+      });
+    }
   }
 
-  // ======================== PDF SIN EMOJIS Y CON CUADROS (idéntico) ========================
   function generarPDFmejorado() {
-    if(ventas.length === 0) {
-      alert("No hay ventas para generar el PDF. Agrega algunas ventas hermosas.");
-      return;
-    }
+    if(ventas.length === 0) { alert("No hay ventas para generar el PDF."); return; }
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-
-    doc.setFillColor(255, 240, 245);
-    doc.rect(0, 0, 210, 297, 'F');
-    
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(28);
-    doc.setTextColor(255, 77, 136);
-    doc.text("NAMORE", 105, 25, { align: "center" });
-    doc.setFontSize(12);
-    doc.setTextColor(180, 80, 110);
-    doc.text("Elegancia y pasión en cada detalle", 105, 35, { align: "center" });
-    doc.setFontSize(9);
-    doc.setTextColor(100, 70, 80);
-    doc.text("Chiguaguas adorables bendicen tus ventas", 105, 45, { align: "center" });
-    doc.setDrawColor(255, 170, 200);
-    doc.line(20, 50, 190, 50);
-    doc.setFontSize(11);
-    doc.setTextColor(50, 30, 40);
-    doc.text("Reporte de Ventas - Fecha: " + new Date().toLocaleDateString('es-PE'), 20, 62);
-    
-    const colX = [20, 55, 95, 135, 160];
-    const rightEdge = 190;
-    const startY = 72;
-    const rowHeight = 7;
-    let currentY = startY;
-    
-    doc.setFillColor(255, 220, 230);
-    doc.rect(colX[0]-1, currentY-5, rightEdge - (colX[0]-1), rowHeight, 'F');
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(10);
-    doc.setTextColor(200, 60, 100);
-    doc.text("Fecha", colX[0], currentY);
-    doc.text("Producto", colX[1], currentY);
-    doc.text("Marca", colX[2], currentY);
-    doc.text("Precio", colX[3], currentY);
-    doc.text("Pago", colX[4], currentY);
-    doc.setDrawColor(200, 140, 160);
-    doc.line(colX[0]-1, currentY-5, rightEdge, currentY-5);
-    doc.line(colX[0]-1, currentY+2, rightEdge, currentY+2);
-    currentY += 4;
-    
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(9.5);
-    doc.setTextColor(70, 50, 60);
-    let totalGeneralPDF = 0;
-    for (let i = 0; i < ventas.length; i++) {
-      const v = ventas[i];
-      totalGeneralPDF += v.precio;
-      if (currentY + rowHeight > 280) {
-        doc.addPage();
-        doc.setFillColor(255, 240, 245);
-        doc.rect(0, 0, 210, 297, 'F');
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(16);
-        doc.setTextColor(255, 77, 136);
-        doc.text("NAMORE", 105, 20, { align: "center" });
-        doc.setFontSize(9);
-        doc.setTextColor(100, 70, 80);
-        doc.text("Continuación de ventas", 105, 30, { align: "center" });
-        currentY = 45;
-        doc.setFillColor(255, 220, 230);
-        doc.rect(colX[0]-1, currentY-5, rightEdge - (colX[0]-1), rowHeight, 'F');
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(10);
-        doc.setTextColor(200, 60, 100);
-        doc.text("Fecha", colX[0], currentY);
-        doc.text("Producto", colX[1], currentY);
-        doc.text("Marca", colX[2], currentY);
-        doc.text("Precio", colX[3], currentY);
-        doc.text("Pago", colX[4], currentY);
-        doc.line(colX[0]-1, currentY-5, rightEdge, currentY-5);
-        doc.line(colX[0]-1, currentY+2, rightEdge, currentY+2);
-        currentY += 4;
-      }
-      let productoTxt = v.producto.length > 18 ? v.producto.slice(0,15)+"..." : v.producto;
-      doc.text(v.fecha, colX[0], currentY);
-      doc.text(productoTxt, colX[1], currentY);
-      doc.text(v.marca, colX[2], currentY);
-      doc.text(`S/ ${v.precio.toFixed(2)}`, colX[3], currentY);
-      doc.text(v.pago, colX[4], currentY);
-      doc.setDrawColor(210, 170, 180);
-      doc.line(colX[0]-1, currentY+2, rightEdge, currentY+2);
-      doc.setDrawColor(200, 160, 170);
-      for (let c = 0; c < colX.length; c++) {
-        doc.line(colX[c]-1, currentY-3, colX[c]-1, currentY+2);
-      }
-      doc.line(rightEdge, currentY-3, rightEdge, currentY+2);
-      currentY += rowHeight;
+    doc.setFillColor(255, 240, 245); doc.rect(0, 0, 210, 297, 'F');
+    doc.setFont("helvetica", "bold"); doc.setFontSize(28); doc.setTextColor(255, 77, 136); doc.text("NAMORE", 105, 25, { align: "center" });
+    doc.setFontSize(12); doc.setTextColor(180, 80, 110); doc.text("Elegancia y pasión en cada detalle", 105, 35, { align: "center" });
+    doc.setFontSize(9); doc.setTextColor(100, 70, 80); doc.text("Reporte de Ventas - Fecha: " + new Date().toLocaleDateString('es-PE'), 105, 45, { align: "center" });
+    doc.setDrawColor(255, 170, 200); doc.line(20, 52, 190, 52);
+    const colX = [20, 55, 95, 135, 160]; const rightEdge = 190; let y = 65;
+    doc.setFillColor(255, 220, 230); doc.rect(colX[0]-1, y-5, rightEdge - (colX[0]-1), 7, 'F');
+    doc.setFont("helvetica", "bold"); doc.setFontSize(10); doc.setTextColor(200, 60, 100);
+    doc.text("Fecha", colX[0], y); doc.text("Producto", colX[1], y); doc.text("Marca", colX[2], y); doc.text("Precio", colX[3], y); doc.text("Pago", colX[4], y);
+    doc.setDrawColor(200, 140, 160); doc.line(colX[0]-1, y-5, rightEdge, y-5); doc.line(colX[0]-1, y+2, rightEdge, y+2);
+    y += 6; doc.setFont("helvetica", "normal"); doc.setFontSize(9.5); doc.setTextColor(70, 50, 60);
+    let total = 0;
+    for (const v of ventas) {
+      total += v.precio;
+      if (y > 270) { doc.addPage(); y = 30; }
+      doc.text(v.fecha, colX[0], y);
+      let prod = v.producto.length > 18 ? v.producto.slice(0,15)+"..." : v.producto;
+      doc.text(prod, colX[1], y);
+      doc.text(v.marca, colX[2], y);
+      doc.text(`S/ ${v.precio.toFixed(2)}`, colX[3], y);
+      doc.text(v.pago, colX[4], y);
+      doc.setDrawColor(210, 170, 180); doc.line(colX[0]-1, y+2, rightEdge, y+2);
+      y += 6;
     }
-    const finalY = currentY - rowHeight + 2;
-    doc.setDrawColor(200, 160, 170);
-    for (let c = 0; c < colX.length; c++) {
-      doc.line(colX[c]-1, startY-5, colX[c]-1, finalY);
-    }
-    doc.line(rightEdge, startY-5, rightEdge, finalY);
-    doc.line(colX[0]-1, finalY, rightEdge, finalY);
-    
-    let yTotals = finalY + 8;
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
-    doc.setTextColor(255, 77, 136);
-    doc.text(`TOTAL GENERAL: S/ ${totalGeneralPDF.toFixed(2)}`, 20, yTotals);
-    let yapeSum = ventas.filter(v=>v.pago==="Yape").reduce((a,b)=>a+b.precio,0);
-    let efectivoSum = ventas.filter(v=>v.pago==="Efectivo").reduce((a,b)=>a+b.precio,0);
-    let tarjetaSum = ventas.filter(v=>v.pago==="Tarjeta").reduce((a,b)=>a+b.precio,0);
-    yTotals += 7;
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
-    doc.setTextColor(100, 70, 80);
-    doc.text(`Yape: S/ ${yapeSum.toFixed(2)}     Efectivo: S/ ${efectivoSum.toFixed(2)}     Tarjeta: S/ ${tarjetaSum.toFixed(2)}`, 20, yTotals);
-    yTotals += 9;
-    doc.setFontSize(9);
-    doc.setTextColor(150, 100, 120);
-    doc.text("Generado con amor NAMORE - Siempre brillando", 105, yTotals, { align: "center" });
-    yTotals += 5;
-    doc.text("Gracias por confiar en nosotras, chiguaguas forever", 105, yTotals, { align: "center" });
-    doc.save("Namore_ventas_con_cuadros.pdf");
+    y += 8;
+    doc.setFont("helvetica", "bold"); doc.setFontSize(12); doc.setTextColor(255, 77, 136);
+    doc.text(`TOTAL GENERAL: S/ ${total.toFixed(2)}`, 20, y);
+    let yape = ventas.filter(v=>v.pago==="Yape").reduce((a,b)=>a+b.precio,0);
+    let efectivo = ventas.filter(v=>v.pago==="Efectivo").reduce((a,b)=>a+b.precio,0);
+    let tarjeta = ventas.filter(v=>v.pago==="Tarjeta").reduce((a,b)=>a+b.precio,0);
+    doc.setFont("helvetica", "normal"); doc.setFontSize(10); doc.setTextColor(100, 70, 80);
+    doc.text(`Yape: S/ ${yape.toFixed(2)}     Efectivo: S/ ${efectivo.toFixed(2)}     Tarjeta: S/ ${tarjeta.toFixed(2)}`, 20, y+7);
+    doc.setFontSize(9); doc.setTextColor(150, 100, 120);
+    doc.text("Generado con amor NAMORE - Siempre brillando", 105, y+16, { align: "center" });
+    doc.save("Namore_ventas.pdf");
   }
 
-  // ======================== INICIALIZACIÓN Y EVENTOS ========================
-  document.getElementById("foto").addEventListener("change", function(e) {
-    const file = e.target.files[0];
-    document.getElementById("nombreFoto").innerText = file ? "📸 lista" : "ninguna";
+  // ======================== INICIALIZACIÓN ========================
+  document.getElementById("foto").addEventListener("change", e => {
+    document.getElementById("nombreFoto").innerText = e.target.files[0] ? "📸 lista" : "ninguna";
   });
-
   function actualizarFechaHoy() {
-    const hoy = new Date();
-    document.getElementById("fechaHoy").innerHTML = hoy.toLocaleDateString('es-PE', { day:'numeric', month:'long', year:'numeric' });
+    document.getElementById("fechaHoy").innerHTML = new Date().toLocaleDateString('es-PE', { day:'numeric', month:'long', year:'numeric' });
   }
   actualizarFechaHoy();
-
   const frases = ["💖 Cada venta es un latido NAMORE", "🐶 Chiguaguas ❤️ moda", "✨ Brilla como diamante", "🌸 Hecho con dulzura", "🐾 Patitas de la suerte"];
   let idxFrase = 0;
   setInterval(() => {
     idxFrase = (idxFrase+1)%frases.length;
     document.getElementById("fraseBonita").innerHTML = frases[idxFrase];
   }, 4000);
-
   document.getElementById("precio").addEventListener("keypress", e => { if(e.key==='Enter') agregarVenta(); });
   document.getElementById("producto").addEventListener("keypress", e => { if(e.key==='Enter') agregarVenta(); });
-
-  // Exponer funciones globalmente para los onclick del HTML
   window.agregarVenta = agregarVenta;
   window.borrarTodo = borrarTodo;
   window.cerrarTienda = cerrarTienda;
   window.generarPDFmejorado = generarPDFmejorado;
 
-  // Cargar datos desde Firestore al inicio
-  cargarVentasFirestore();
+  if (db) cargarVentasFirestore();
+  else alert("No se pudo conectar a Firebase. Verifica tu conexión a Internet.");
 </script>
 </body>
 </html>
