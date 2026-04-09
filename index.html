@@ -439,8 +439,7 @@
   }
 
 import { collection, addDoc } from "firebase/firestore";
-import { db } from "./firebase.js";
-  // funciones principales
+import { db } from "./src/firebase.js";  // funciones principales
   function agregarVenta() {
     const producto = document.getElementById("producto").value.trim();
     const marca = document.getElementById("marca").value;
