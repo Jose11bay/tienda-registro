@@ -455,15 +455,37 @@
 
   function generarPDFmejorado() { if(ventas.length===0){alert("Sin ventas");return;} const {jsPDF}=window.jspdf; const doc=new jsPDF(); doc.setFillColor(255,240,245); doc.rect(0,0,210,297,'F'); doc.setFont("helvetica","bold"); doc.setFontSize(28); doc.setTextColor(255,77,136); doc.text("NAMORE",105,25,{align:"center"}); doc.setFontSize(12); doc.setTextColor(180,80,110); doc.text("Elegancia y pasión",105,35,{align:"center"}); doc.setFontSize(9); doc.text("Reporte de Ventas - "+new Date().toLocaleDateString('es-PE'),105,45,{align:"center"}); doc.setDrawColor(255,170,200); doc.line(20,52,190,52); const colX=[20,55,95,135,160]; let y=65; doc.setFillColor(255,220,230); doc.rect(colX[0]-1,y-5,190-(colX[0]-1),7,'F'); doc.setFont("helvetica","bold"); doc.setFontSize(10); doc.setTextColor(200,60,100); doc.text("Fecha",colX[0],y); doc.text("Producto",colX[1],y); doc.text("Marca",colX[2],y); doc.text("Precio",colX[3],y); doc.text("Pago",colX[4],y); doc.line(colX[0]-1,y-5,190,y-5); doc.line(colX[0]-1,y+2,190,y+2); y+=6; doc.setFont("helvetica","normal"); doc.setFontSize(9.5); let total=0; for(const v of ventas){ total+=v.precio; doc.text(v.fecha,colX[0],y); let prod=v.producto.length>18?v.producto.slice(0,15)+"...":v.producto; doc.text(prod,colX[1],y); doc.text(v.marca,colX[2],y); doc.text(`S/ ${v.precio.toFixed(2)}`,colX[3],y); doc.text(v.pago,colX[4],y); y+=6;} y+=8; doc.setFont("helvetica","bold"); doc.setFontSize(12); doc.setTextColor(255,77,136); doc.text(`TOTAL GENERAL: S/ ${total.toFixed(2)}`,20,y); let yape=ventas.filter(v=>v.pago==="Yape").reduce((a,b)=>a+b.precio,0); let efectivo=ventas.filter(v=>v.pago==="Efectivo").reduce((a,b)=>a+b.precio,0); let tarjeta=ventas.filter(v=>v.pago==="Tarjeta").reduce((a,b)=>a+b.precio,0); doc.setFont("helvetica","normal"); doc.setFontSize(10); doc.text(`Yape: S/ ${yape.toFixed(2)}     Efectivo: S/ ${efectivo.toFixed(2)}     Tarjeta: S/ ${tarjeta.toFixed(2)}`,20,y+7); doc.setFontSize(9); doc.text("Generado con amor NAMORE",105,y+16,{align:"center"}); doc.save("Namore_ventas.pdf"); }
 
-  // ========== HISTORIAL MEJORADO ==========
+  // ========== HISTORIAL MEJORADO - AGRUPACIÓN POR FECHA ==========
   async function cargarHistorial() {
     if (!db) return;
     try {
       const snap = await getDocs(collection(db, "cierres"));
       allCierres = [];
       snap.forEach(d => allCierres.push({ id: d.id, ...d.data() }));
-      allCierres.sort((a,b) => (b.fechaReal || 0) - (a.fechaReal || 0));
-      renderHistorial(allCierres);
+      // Agrupar por fecha (YYYY-MM-DD)
+      const grupos = new Map();
+      allCierres.forEach(cierre => {
+        const fecha = cierre.fecha;
+        if (!grupos.has(fecha)) {
+          grupos.set(fecha, {
+            fecha: fecha,
+            fechaReal: cierre.fechaReal || 0,
+            total: 0,
+            cantidadVentas: 0,
+            ventas: []
+          });
+        }
+        const grupo = grupos.get(fecha);
+        grupo.total += cierre.total;
+        grupo.cantidadVentas += cierre.cantidadVentas;
+        if (cierre.ventas && Array.isArray(cierre.ventas)) {
+          grupo.ventas.push(...cierre.ventas);
+        }
+      });
+      // Convertir a array y ordenar por fechaReal descendente
+      let cierresAgrupados = Array.from(grupos.values());
+      cierresAgrupados.sort((a,b) => (b.fechaReal || 0) - (a.fechaReal || 0));
+      renderHistorial(cierresAgrupados);
     } catch (error) { console.error(error); alert("Error al cargar historial."); }
   }
 
@@ -486,7 +508,7 @@
       const ventasDiv = div.querySelector(".cierre-ventas");
       const header = div.querySelector(".cierre-header");
       const icon = header.querySelector(".toggle-icon");
-      if (cierre.ventas && Array.isArray(cierre.ventas)) {
+      if (cierre.ventas && cierre.ventas.length > 0) {
         cierre.ventas.forEach(v => {
           const item = document.createElement("div");
           item.className = "historial-venta-item";
@@ -514,14 +536,39 @@
 
   function filtrarHistorial() {
     const fechaFiltro = document.getElementById("filtroFecha").value;
-    if (!fechaFiltro) { renderHistorial(allCierres); return; }
+    if (!fechaFiltro) {
+      cargarHistorial(); // recarga completo con agrupación
+      return;
+    }
+    // Filtrar los cierres originales por fecha, luego agrupar
     const filtrados = allCierres.filter(c => c.fecha === fechaFiltro);
-    renderHistorial(filtrados);
+    // Agrupar los filtrados por fecha (aunque sea una sola)
+    const grupos = new Map();
+    filtrados.forEach(cierre => {
+      const fecha = cierre.fecha;
+      if (!grupos.has(fecha)) {
+        grupos.set(fecha, {
+          fecha: fecha,
+          fechaReal: cierre.fechaReal || 0,
+          total: 0,
+          cantidadVentas: 0,
+          ventas: []
+        });
+      }
+      const grupo = grupos.get(fecha);
+      grupo.total += cierre.total;
+      grupo.cantidadVentas += cierre.cantidadVentas;
+      if (cierre.ventas && Array.isArray(cierre.ventas)) {
+        grupo.ventas.push(...cierre.ventas);
+      }
+    });
+    const cierresAgrupados = Array.from(grupos.values());
+    renderHistorial(cierresAgrupados);
   }
 
   function resetFiltroHistorial() {
     document.getElementById("filtroFecha").value = "";
-    renderHistorial(allCierres);
+    cargarHistorial();
   }
 
   function toggleHistorial() {
@@ -529,8 +576,7 @@
     if (panel.style.display === "none") {
       panel.style.display = "block";
       historialVisible = true;
-      if (allCierres.length === 0) cargarHistorial();
-      else renderHistorial(allCierres);
+      cargarHistorial();
     } else {
       panel.style.display = "none";
       historialVisible = false;
