@@ -242,6 +242,17 @@
     .venta-info strong {
       color: #ff4d88;
     }
+    .observacion-text {
+      font-size: 0.75rem;
+      color: #b3567a;
+      background: #fff0f4;
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 40px;
+      margin-top: 4px;
+      max-width: 100%;
+      word-break: break-word;
+    }
     .venta-img-preview {
       width: 48px;
       height: 48px;
@@ -251,14 +262,27 @@
       border: 2px solid white;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
-    .delete-btn {
+    .action-buttons {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .edit-btn, .delete-btn {
       background: none;
       border: none;
-      font-size: 1.4rem;
-      color: #ff99b5;
+      font-size: 1.2rem;
       cursor: pointer;
-      margin-left: 8px;
       transition: 0.1s;
+    }
+    .edit-btn {
+      color: #ffaa66;
+    }
+    .edit-btn:hover {
+      color: #ff884d;
+      transform: scale(1.1);
+    }
+    .delete-btn {
+      color: #ff99b5;
     }
     .delete-btn:hover {
       color: #ff335f;
@@ -318,7 +342,7 @@
     <div style="margin-top: 12px;">
       <div class="chiguagua-love">
         <span>🐶</span><span>🐕</span><span>✨</span>
-        <span class="chiguagua-text"><i class="fas fa-paw"></i> CLIENTES FELICES <i class="fas fa-paw"></i></span>
+        <span class="chiguagua-text"><i class="fas fa-paw"></i> CHIGUAGUAS FELICES <i class="fas fa-paw"></i></span>
         <span>🐾</span><span>❤️</span><span>🐶</span>
       </div>
     </div>
@@ -382,22 +406,39 @@
   // ======================== DATOS Y PERSISTENCIA ========================
   let ventas = [];
 
-  // Cargar datos guardados
+  // Cargar datos guardados (con versión que soporte observaciones)
   function cargarStorage() {
-    const stored = localStorage.getItem("namoreVentasHermosas");
+    const stored = localStorage.getItem("namoreVentasHermosas_v2");
     if(stored) {
       ventas = JSON.parse(stored);
+      // Asegurar que todas las ventas tengan campo observaciones (migración)
+      let changed = false;
+      ventas.forEach(v => {
+        if (v.observaciones === undefined) {
+          v.observaciones = "";
+          changed = true;
+        }
+      });
+      if (changed) guardarStorage();
       mostrarVentas();
       actualizarGraficoYResumen();
     } else {
-      ventas = [];
+      // Intentar cargar versión antigua sin observaciones
+      const oldStored = localStorage.getItem("namoreVentasHermosas");
+      if (oldStored) {
+        ventas = JSON.parse(oldStored);
+        ventas.forEach(v => { v.observaciones = ""; });
+        guardarStorage();
+      } else {
+        ventas = [];
+      }
       mostrarVentas();
       actualizarGraficoYResumen();
     }
   }
 
   function guardarStorage() {
-    localStorage.setItem("namoreVentasHermosas", JSON.stringify(ventas));
+    localStorage.setItem("namoreVentasHermosas_v2", JSON.stringify(ventas));
   }
 
   // funciones principales
@@ -416,11 +457,11 @@
     if(archivo) {
       const reader = new FileReader();
       reader.onload = function(e) {
-        guardarVentaFinal(producto, marca, precio, pago, fecha, e.target.result);
+        guardarVentaFinal(producto, marca, precio, pago, fecha, e.target.result, "");
       };
       reader.readAsDataURL(archivo);
     } else {
-      guardarVentaFinal(producto, marca, precio, pago, fecha, null);
+      guardarVentaFinal(producto, marca, precio, pago, fecha, null, "");
     }
 
     document.getElementById("producto").value = "";
@@ -429,8 +470,8 @@
     document.getElementById("nombreFoto").innerText = "ninguna";
   }
 
-  function guardarVentaFinal(producto, marca, precio, pago, fecha, imagenData) {
-    const nuevaVenta = { producto, marca, precio, pago, fecha, imagen: imagenData };
+  function guardarVentaFinal(producto, marca, precio, pago, fecha, imagenData, observaciones) {
+    const nuevaVenta = { producto, marca, precio, pago, fecha, imagen: imagenData, observaciones: observaciones || "" };
     ventas.push(nuevaVenta);
     guardarStorage();
     mostrarVentas();
@@ -446,6 +487,18 @@
     actualizarGraficoYResumen();
   }
 
+  // Función para editar observaciones
+  function editarObservaciones(index) {
+    const venta = ventas[index];
+    const nuevaObs = prompt("✏️ Escribe una observación para este producto:\n(nota, cliente, detalle especial)", venta.observaciones || "");
+    if (nuevaObs !== null) {
+      ventas[index].observaciones = nuevaObs.trim() === "" ? "" : nuevaObs.trim();
+      guardarStorage();
+      mostrarVentas();
+      actualizarGraficoYResumen(); // Actualizar por si afecta resumen (no, pero consistencia)
+    }
+  }
+
   function mostrarVentas() {
     const listaUl = document.getElementById("lista");
     listaUl.innerHTML = "";
@@ -456,17 +509,34 @@
     ventas.forEach((v, idx) => {
       const li = document.createElement("li");
       li.className = "venta-item";
+      // Mostrar observación si existe
+      const obsHtml = v.observaciones ? `<div class="observacion-text"><i class="fas fa-pencil-alt"></i> ${escapeHtml(v.observaciones)}</div>` : '';
       li.innerHTML = `
         <div class="venta-info">
           <strong>${v.fecha}</strong> · ${v.producto} · ${v.marca}<br>
           <span class="badge-chi"><i class="fas fa-money-bill-wave"></i> S/ ${v.precio}</span> · <i class="fas fa-credit-card"></i> ${v.pago}
+          ${obsHtml}
         </div>
-        <div style="display: flex; align-items: center; gap: 5px;">
+        <div class="action-buttons">
           ${v.imagen ? `<img src="${v.imagen}" class="venta-img-preview" alt="foto">` : '<i class="fas fa-camera" style="color:#ffb7cb;"></i>'}
+          <button class="edit-btn" onclick="editarObservaciones(${idx})" title="Agregar/editar observación"><i class="fas fa-edit"></i></button>
           <button class="delete-btn" onclick="eliminarVenta(${idx})"><i class="fas fa-trash-alt"></i></button>
         </div>
       `;
       listaUl.appendChild(li);
+    });
+  }
+
+  // función auxiliar para escapar HTML en observaciones
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+      if (m === '&') return '&amp;';
+      if (m === '<') return '&lt;';
+      if (m === '>') return '&gt;';
+      return m;
+    }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
+      return c;
     });
   }
 
@@ -523,7 +593,7 @@
     });
   }
 
-  // ======================== PDF SIN EMOJIS Y CON CUADROS (BORDES) ========================
+  // ======================== PDF SIN EMOJIS Y CON CUADROS ========================
   function generarPDFmejorado() {
     if(ventas.length === 0) {
       alert("No hay ventas para generar el PDF. Agrega algunas ventas hermosas.");
@@ -532,11 +602,9 @@
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
-    // Fondo suave
     doc.setFillColor(255, 240, 245);
     doc.rect(0, 0, 210, 297, 'F');
     
-    // Título principal (sin emojis)
     doc.setFont("helvetica", "bold");
     doc.setFontSize(28);
     doc.setTextColor(255, 77, 136);
@@ -544,30 +612,21 @@
     doc.setFontSize(12);
     doc.setTextColor(180, 80, 110);
     doc.text("Elegancia y pasión en cada detalle", 105, 35, { align: "center" });
-    
-    // Texto secundario sin emojis
     doc.setFontSize(9);
     doc.setTextColor(100, 70, 80);
     doc.text("Chiguaguas adorables bendicen tus ventas", 105, 45, { align: "center" });
-    
-    // Línea decorativa
     doc.setDrawColor(255, 170, 200);
     doc.line(20, 50, 190, 50);
-    
     doc.setFontSize(11);
     doc.setTextColor(50, 30, 40);
     doc.text("Reporte de Ventas - Fecha: " + new Date().toLocaleDateString('es-PE'), 20, 62);
     
-    // Definir columnas y coordenadas (en mm)
-    const colX = [20, 55, 95, 135, 160];  // posiciones X de cada columna
-    const colWidths = [33, 38, 38, 23, 28]; // aproximadas, para bordes
+    const colX = [20, 55, 95, 135, 160];
     const rightEdge = 190;
-    const startY = 72;       // Y donde empieza la tabla (cabecera)
-    const rowHeight = 7;     // altura por fila
-    
+    const startY = 72;
+    const rowHeight = 7;
     let currentY = startY;
     
-    // --- CABECERA DE TABLA con fondo y bordes ---
     doc.setFillColor(255, 220, 230);
     doc.rect(colX[0]-1, currentY-5, rightEdge - (colX[0]-1), rowHeight, 'F');
     doc.setFont("helvetica", "bold");
@@ -578,30 +637,20 @@
     doc.text("Marca", colX[2], currentY);
     doc.text("Precio", colX[3], currentY);
     doc.text("Pago", colX[4], currentY);
-    
-    // Bordes cabecera (superior e inferior)
     doc.setDrawColor(200, 140, 160);
-    doc.line(colX[0]-1, currentY-5, rightEdge, currentY-5); // borde superior
-    doc.line(colX[0]-1, currentY+2, rightEdge, currentY+2); // borde inferior cabecera
+    doc.line(colX[0]-1, currentY-5, rightEdge, currentY-5);
+    doc.line(colX[0]-1, currentY+2, rightEdge, currentY+2);
+    currentY += 4;
     
-    currentY += 4; // ajuste para la siguiente fila (dejamos espacio)
-    
-    // --- DATOS: cada fila con bordes horizontales y verticales ---
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9.5);
     doc.setTextColor(70, 50, 60);
-    
     let totalGeneralPDF = 0;
-    let rowCount = 0;
-    
     for (let i = 0; i < ventas.length; i++) {
       const v = ventas[i];
       totalGeneralPDF += v.precio;
-      
-      // Si no cabe en la página, agregar nueva hoja
       if (currentY + rowHeight > 280) {
         doc.addPage();
-        // Volver a dibujar fondo y encabezado simplificado (opcional)
         doc.setFillColor(255, 240, 245);
         doc.rect(0, 0, 210, 297, 'F');
         doc.setFont("helvetica", "bold");
@@ -611,8 +660,6 @@
         doc.setFontSize(9);
         doc.setTextColor(100, 70, 80);
         doc.text("Continuación de ventas", 105, 30, { align: "center" });
-        
-        // Reiniciar cabecera en nueva página
         currentY = 45;
         doc.setFillColor(255, 220, 230);
         doc.rect(colX[0]-1, currentY-5, rightEdge - (colX[0]-1), rowHeight, 'F');
@@ -628,71 +675,48 @@
         doc.line(colX[0]-1, currentY+2, rightEdge, currentY+2);
         currentY += 4;
       }
-      
-      // Recortar producto si es muy largo
       let productoTxt = v.producto.length > 18 ? v.producto.slice(0,15)+"..." : v.producto;
-      
-      // Escribir texto de la fila
       doc.text(v.fecha, colX[0], currentY);
       doc.text(productoTxt, colX[1], currentY);
       doc.text(v.marca, colX[2], currentY);
       doc.text(`S/ ${v.precio.toFixed(2)}`, colX[3], currentY);
       doc.text(v.pago, colX[4], currentY);
-      
-      // LÍNEA HORIZONTAL INFERIOR DE LA FILA (cuadro separador)
       doc.setDrawColor(210, 170, 180);
       doc.line(colX[0]-1, currentY+2, rightEdge, currentY+2);
-      
-      // LÍNEAS VERTICALES (para cada fila, dibujamos las verticales que cruzan toda la tabla)
-      // Las dibujaremos una sola vez al final para evitar sobrecarga, pero aquí marcamos las posiciones
-      // Sin embargo, para que se vea bien, dibujamos verticales cortas que abarquen el alto de la fila.
-      // Usamos el mismo color suave.
       doc.setDrawColor(200, 160, 170);
       for (let c = 0; c < colX.length; c++) {
         doc.line(colX[c]-1, currentY-3, colX[c]-1, currentY+2);
       }
       doc.line(rightEdge, currentY-3, rightEdge, currentY+2);
-      
       currentY += rowHeight;
-      rowCount++;
     }
-    
-    // --- LÍNEAS VERTICALES COMPLETAS desde el inicio de la tabla hasta el final ---
-    // (Para unir todos los cuadros visualmente, ya tenemos verticales por fila, pero redibujamos completas por estética)
     const finalY = currentY - rowHeight + 2;
     doc.setDrawColor(200, 160, 170);
     for (let c = 0; c < colX.length; c++) {
       doc.line(colX[c]-1, startY-5, colX[c]-1, finalY);
     }
     doc.line(rightEdge, startY-5, rightEdge, finalY);
-    // borde inferior general de la tabla
     doc.line(colX[0]-1, finalY, rightEdge, finalY);
     
-    // --- Totales y resúmenes SIN EMOJIS ---
     let yTotals = finalY + 8;
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
     doc.setTextColor(255, 77, 136);
     doc.text(`TOTAL GENERAL: S/ ${totalGeneralPDF.toFixed(2)}`, 20, yTotals);
-    
     let yapeSum = ventas.filter(v=>v.pago==="Yape").reduce((a,b)=>a+b.precio,0);
     let efectivoSum = ventas.filter(v=>v.pago==="Efectivo").reduce((a,b)=>a+b.precio,0);
     let tarjetaSum = ventas.filter(v=>v.pago==="Tarjeta").reduce((a,b)=>a+b.precio,0);
-    
     yTotals += 7;
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
     doc.setTextColor(100, 70, 80);
     doc.text(`Yape: S/ ${yapeSum.toFixed(2)}     Efectivo: S/ ${efectivoSum.toFixed(2)}     Tarjeta: S/ ${tarjetaSum.toFixed(2)}`, 20, yTotals);
-    
     yTotals += 9;
     doc.setFontSize(9);
     doc.setTextColor(150, 100, 120);
     doc.text("Generado con amor NAMORE - Siempre brillando", 105, yTotals, { align: "center" });
     yTotals += 5;
     doc.text("Gracias por confiar en nosotras, chiguaguas forever", 105, yTotals, { align: "center" });
-    
-    // Guardar PDF
     doc.save("Namore_ventas_con_cuadros.pdf");
   }
   
@@ -715,9 +739,13 @@
     }
   });
   
-  // fecha actual en la columna derecha
-  const hoy = new Date();
-  document.getElementById("fechaHoy").innerHTML = hoy.toLocaleDateString('es-PE', {day:'numeric', month:'long', year:'numeric'});
+  // Aseguramos que la fecha actual se muestre correctamente en móvil y escritorio
+  function actualizarFechaHoy() {
+    const hoy = new Date();
+    const opciones = { day: 'numeric', month: 'long', year: 'numeric' };
+    document.getElementById("fechaHoy").innerHTML = hoy.toLocaleDateString('es-PE', opciones);
+  }
+  actualizarFechaHoy();
   
   // frases lindas rotativas
   const frases = ["💖 Cada venta es un latido NAMORE", "🐶 Chiguaguas ❤️ moda", "✨ Brilla como diamante", "🌸 Hecho con dulzura", "🐾 Patitas de la suerte"];
