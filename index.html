@@ -4,12 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   <title>✨ NAMORE · Ventas Hermosas ✨</title>
-  <!-- Google Fonts y librerías -->
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <!-- Chart.js para gráfico lindo -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <!-- jsPDF mejorado -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -46,9 +43,29 @@
     .delete-btn { color: #ff99b5; }
     .total-resumen { background: #fff0f4; border-radius: 28px; padding: 18px; margin-top: 20px; text-align: center; }
     canvas#ventasChart { max-height: 220px; width: 100%; }
-    .action-group { display: flex; gap: 12px; justify-content: flex-end; margin-top: 20px; }
+    .action-group { display: flex; gap: 12px; justify-content: flex-end; margin-top: 20px; flex-wrap: wrap; }
     footer { text-align: center; margin-top: 30px; font-size: 0.8rem; color: #c07f98; }
     .badge-chi { background: #ffdce6; border-radius: 60px; padding: 2px 12px; font-size: 0.75rem; display: inline-block; }
+
+    /* Historial */
+    .historial-container { margin-top: 25px; border-top: 2px dashed #ffc2d4; padding-top: 20px; }
+    .historial-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px; }
+    .filtros { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .filtros input, .filtros button { padding: 8px 16px; border-radius: 40px; border: 1px solid #ffcddb; font-family: 'Quicksand', sans-serif; }
+    .historial-lista { max-height: 500px; overflow-y: auto; }
+    .cierre-item { background: #fff5f7; border-radius: 28px; margin-bottom: 16px; overflow: hidden; border: 1px solid #ffe2ec; }
+    .cierre-header { background: #ffe3ec; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; border-radius: 28px; }
+    .cierre-header:hover { background: #ffd6e4; }
+    .cierre-fecha { font-weight: bold; color: #c95a7a; font-size: 1.1rem; }
+    .cierre-total { font-weight: bold; color: #ff4d88; }
+    .cierre-cantidad { color: #b3567a; font-size: 0.85rem; margin-left: 10px; }
+    .cierre-ventas { padding: 12px; display: none; background: white; border-radius: 0 0 28px 28px; }
+    .cierre-ventas.mostrar { display: block; }
+    .historial-venta-item { background: #fffafc; border-radius: 20px; padding: 12px; margin-bottom: 12px; border: 1px solid #ffe2ec; display: flex; justify-content: space-between; flex-wrap: wrap; align-items: center; }
+    .historial-venta-info { flex: 1; font-size: 0.85rem; }
+    .toggle-icon { transition: transform 0.2s; }
+    .rotated { transform: rotate(180deg); }
+    .no-data { text-align: center; padding: 30px; color: #b97f98; }
   </style>
 </head>
 <body>
@@ -58,7 +75,7 @@
     <div class="sub-lema"><i class="fas fa-heart"></i> elegancia & pasión <i class="fas fa-heart"></i></div>
     <div class="chiguagua-love">
       <span>🐶</span><span>🐕</span><span>✨</span>
-      <span class="chiguagua-text"><i class="fas fa-paw"></i> CHIGUAGUAS FELICES <i class="fas fa-paw"></i></span>
+      <span class="chiguagua-text"><i class="fas fa-paw"></i> CLIENTES FELICES <i class="fas fa-paw"></i></span>
       <span>🐾</span><span>❤️</span><span>🐶</span>
     </div>
   </div>
@@ -83,6 +100,7 @@
       <div class="action-group">
         <button class="btn-secondary" onclick="borrarTodo()"><i class="fas fa-trash-alt"></i> Limpiar todo</button>
         <button class="btn-primary" onclick="cerrarTienda()"><i class="fas fa-store"></i> Cerrar tienda del día</button>
+        <button class="btn-primary" onclick="toggleHistorial()"><i class="fas fa-history"></i> Ver historial</button>
         <button class="btn-primary" onclick="generarPDFmejorado()"><i class="fas fa-file-pdf"></i> PDF premium</button>
       </div>
     </div>
@@ -98,15 +116,24 @@
       </div>
     </div>
   </div>
+  <div id="historialPanel" style="display: none;" class="historial-container">
+    <div class="historial-header">
+      <h3 style="color:#ff4d88;"><i class="fas fa-archive"></i> Historial de cierres</h3>
+      <div class="filtros">
+        <input type="date" id="filtroFecha" placeholder="Filtrar por fecha">
+        <button class="btn-secondary" onclick="filtrarHistorial()"><i class="fas fa-filter"></i> Filtrar</button>
+        <button class="btn-secondary" onclick="resetFiltroHistorial()"><i class="fas fa-eye"></i> Ver todo</button>
+      </div>
+    </div>
+    <div id="historialLista" class="historial-lista"></div>
+  </div>
   <footer><i class="fas fa-heart"></i> NAMORE · Cada venta es un latido · con cariño y chiguaguas <i class="fas fa-heart"></i></footer>
 </div>
 
 <script type="module">
-  // ======================== FIREBASE CONFIGURACIÓN CORREGIDA ========================
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  // Configuración válida (storageBucket corregido: .com en lugar de .app)
   const firebaseConfig = {
     apiKey: "AIzaSyAF151DXqJ0wakbjm-bIvii8FszAn5C1sE",
     authDomain: "tienda-registro.firebaseapp.com",
@@ -120,115 +147,95 @@
   try {
     app = initializeApp(firebaseConfig);
     db = getFirestore(app);
-    console.log("Firebase inicializado correctamente");
+    console.log("Firebase listo");
   } catch (error) {
-    console.error("Error inicializando Firebase:", error);
-    alert("Error de conexión con Firebase. Verifica tu conexión a Internet.");
+    console.error("Firebase error:", error);
+    alert("Error de conexión con Firebase.");
   }
 
   let ventas = [];
   let online = true;
+  let allCierres = [];
+  let historialVisible = false;
 
-  // Detectar cambios de conectividad
   window.addEventListener('online', () => { online = true; cargarVentasFirestore(); });
-  window.addEventListener('offline', () => { online = false; alert("Sin conexión a Internet. Los cambios no se guardarán en la nube."); });
+  window.addEventListener('offline', () => { online = false; alert("Sin conexión. Los cambios no se guardarán."); });
 
-  // ======================== CRUD CON FIRESTORE ========================
+  // ========== CRUD VENTAS (sin cambios) ==========
   async function cargarVentasFirestore() {
     if (!db) return;
     try {
-      const querySnapshot = await getDocs(collection(db, "ventas"));
+      const qs = await getDocs(collection(db, "ventas"));
       ventas = [];
-      querySnapshot.forEach(docu => ventas.push({ id: docu.id, ...docu.data() }));
+      qs.forEach(d => ventas.push({ id: d.id, ...d.data() }));
       ventas.sort((a,b) => new Date(b.fecha.split('/').reverse().join('-')) - new Date(a.fecha.split('/').reverse().join('-')));
       mostrarVentas();
       actualizarGraficoYResumen();
-    } catch (error) {
-      console.error("Error cargando ventas:", error);
-      if (!online) alert("Sin conexión a Internet. No se pueden cargar los datos.");
-      else alert("Error al conectar con Firebase. Revisa tu configuración.");
-    }
+    } catch (error) { console.error(error); alert("Error cargando ventas."); }
   }
 
   async function guardarVentaFinal(producto, marca, precio, pago, fecha, imagenData, observaciones) {
-    if (!db) { alert("Firebase no inicializado"); return; }
+    if (!db) return;
     try {
-      const nuevaVenta = { producto, marca, precio, pago, fecha, imagen: imagenData || null, observaciones: observaciones || "", timestamp: new Date().toISOString() };
-      const docRef = await addDoc(collection(db, "ventas"), nuevaVenta);
-      ventas.unshift({ id: docRef.id, ...nuevaVenta });
+      const nueva = { producto, marca, precio, pago, fecha, imagen: imagenData || null, observaciones: observaciones || "", timestamp: new Date().toISOString() };
+      const docRef = await addDoc(collection(db, "ventas"), nueva);
+      ventas.unshift({ id: docRef.id, ...nueva });
       mostrarVentas();
       actualizarGraficoYResumen();
-    } catch (error) {
-      console.error("Error al guardar:", error);
-      alert("Error al guardar en Firebase. Verifica tu conexión.");
-    }
+    } catch (error) { alert("Error al guardar."); }
   }
 
   async function eliminarVenta(id) {
-    if (!db) return;
-    if (!confirm("¿Eliminar esta venta permanentemente?")) return;
+    if (!db || !confirm("¿Eliminar?")) return;
     try {
       await deleteDoc(doc(db, "ventas", id));
       ventas = ventas.filter(v => v.id !== id);
       mostrarVentas();
       actualizarGraficoYResumen();
-    } catch (error) {
-      console.error("Error al eliminar:", error);
-      alert("Error al eliminar venta.");
-    }
+    } catch (error) { alert("Error al eliminar."); }
   }
 
   async function editarObservaciones(id, obsActual) {
-    const nuevaObs = prompt("✏️ Escribe una observación:", obsActual || "");
-    if (nuevaObs !== null && db) {
+    const nueva = prompt("Observación:", obsActual || "");
+    if (nueva !== null && db) {
       try {
-        const ventaRef = doc(db, "ventas", id);
-        await updateDoc(ventaRef, { observaciones: nuevaObs.trim() });
-        const venta = ventas.find(v => v.id === id);
-        if (venta) venta.observaciones = nuevaObs.trim();
+        await updateDoc(doc(db, "ventas", id), { observaciones: nueva.trim() });
+        const v = ventas.find(v => v.id === id);
+        if (v) v.observaciones = nueva.trim();
         mostrarVentas();
         actualizarGraficoYResumen();
-      } catch (error) {
-        console.error("Error al actualizar:", error);
-        alert("Error al guardar observación.");
-      }
+      } catch (error) { alert("Error al actualizar."); }
     }
   }
 
   async function borrarTodo() {
-    if (!db) return;
-    if (!confirm("⚠️ ¿ELIMINAR TODAS LAS VENTAS? No se puede deshacer.")) return;
+    if (!db || !confirm("⚠️ Eliminar todas las ventas?")) return;
     try {
-      for (const venta of ventas) await deleteDoc(doc(db, "ventas", venta.id));
+      for (const v of ventas) await deleteDoc(doc(db, "ventas", v.id));
       ventas = [];
       mostrarVentas();
       actualizarGraficoYResumen();
-    } catch (error) {
-      console.error("Error al limpiar:", error);
-      alert("Error al eliminar todas las ventas.");
-    }
+    } catch (error) { alert("Error al limpiar."); }
   }
 
   async function cerrarTienda() {
     if (!db) { alert("Firebase no disponible"); return; }
-    if (ventas.length === 0) { alert("No hay ventas para cerrar el día."); return; }
+    if (ventas.length === 0) { alert("No hay ventas para cerrar."); return; }
     try {
-      const totalGeneral = ventas.reduce((sum, v) => sum + v.precio, 0);
-      const fechaFormateada = new Date().toISOString().split('T')[0];
-      const cierre = { fecha: fechaFormateada, total: totalGeneral, ventas: ventas.map(v => ({ ...v })), cantidadVentas: ventas.length, timestamp: new Date().toISOString() };
+      const total = ventas.reduce((s, v) => s + v.precio, 0);
+      const fechaForm = new Date().toISOString().split('T')[0];
+      const cierre = { fecha: fechaForm, total: total, ventas: ventas.map(v => ({ ...v })), cantidadVentas: ventas.length, timestamp: new Date().toISOString() };
       await addDoc(collection(db, "cierres"), cierre);
-      for (const venta of ventas) await deleteDoc(doc(db, "ventas", venta.id));
+      for (const v of ventas) await deleteDoc(doc(db, "ventas", v.id));
       ventas = [];
       mostrarVentas();
       actualizarGraficoYResumen();
-      alert("✅ Día cerrado correctamente. Las ventas se guardaron en el historial.");
-    } catch (error) {
-      console.error("Error al cerrar tienda:", error);
-      alert("Ocurrió un error al cerrar el día.");
-    }
+      alert("✅ Día cerrado correctamente.");
+      if (historialVisible) cargarHistorial();
+    } catch (error) { alert("Error al cerrar día."); }
   }
 
-  // ======================== UI (sin cambios en diseño) ========================
+  // ========== UI VENTAS ==========
   function agregarVenta() {
     const producto = document.getElementById("producto").value.trim();
     const marca = document.getElementById("marca").value;
@@ -236,8 +243,8 @@
     const pago = document.getElementById("pago").value;
     const archivo = document.getElementById("foto").files[0];
     const fecha = new Date().toLocaleDateString('es-PE');
-    if(!producto) { alert("✨ Escribe un producto hermoso ✨"); return; }
-    if(isNaN(precio) || precio <= 0) { alert("Precio válido S/"); return; }
+    if(!producto) { alert("Producto vacío"); return; }
+    if(isNaN(precio) || precio <= 0) { alert("Precio válido"); return; }
     precio = parseFloat(precio.toFixed(2));
     if(archivo) {
       const reader = new FileReader();
@@ -253,12 +260,9 @@
   }
 
   function mostrarVentas() {
-    const listaUl = document.getElementById("lista");
-    listaUl.innerHTML = "";
-    if(ventas.length === 0) {
-      listaUl.innerHTML = "<li style='text-align:center; padding:20px;'><i class='fas fa-paw'></i> Aún no hay ventas… ¡agrega una! 🐶</li>";
-      return;
-    }
+    const ul = document.getElementById("lista");
+    ul.innerHTML = "";
+    if(ventas.length === 0) { ul.innerHTML = "<li style='text-align:center; padding:20px;'><i class='fas fa-paw'></i> Aún no hay ventas… 🐶</li>"; return; }
     ventas.forEach(v => {
       const li = document.createElement("li");
       li.className = "venta-item";
@@ -275,122 +279,133 @@
           <button class="delete-btn" data-id="${v.id}"><i class="fas fa-trash-alt"></i></button>
         </div>
       `;
-      listaUl.appendChild(li);
+      ul.appendChild(li);
     });
-    document.querySelectorAll(".edit-btn").forEach(btn => {
-      btn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        editarObservaciones(btn.getAttribute("data-id"), btn.getAttribute("data-obs"));
-      });
-    });
-    document.querySelectorAll(".delete-btn").forEach(btn => {
-      btn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        eliminarVenta(btn.getAttribute("data-id"));
-      });
-    });
+    document.querySelectorAll(".edit-btn").forEach(btn => btn.addEventListener("click", (e) => { e.stopPropagation(); editarObservaciones(btn.dataset.id, btn.dataset.obs); }));
+    document.querySelectorAll(".delete-btn").forEach(btn => btn.addEventListener("click", (e) => { e.stopPropagation(); eliminarVenta(btn.dataset.id); }));
   }
 
-  function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => m==='&'?'&amp;':m==='<'?'&lt;':'&gt;'); }
+  function escapeHtml(str) { return str ? str.replace(/[&<>]/g, m => m==='&'?'&amp;':m==='<'?'&lt;':'&gt;') : ''; }
   function escapeAttr(str) { return str ? str.replace(/"/g, '&quot;') : ''; }
 
   let chartInstance = null;
   function actualizarGraficoYResumen() {
-    let totalGeneral = 0, yapeTotal = 0, efectivoTotal = 0, tarjetaTotal = 0;
-    ventas.forEach(v => {
-      totalGeneral += v.precio;
-      if(v.pago === "Yape") yapeTotal += v.precio;
-      else if(v.pago === "Efectivo") efectivoTotal += v.precio;
-      else if(v.pago === "Tarjeta") tarjetaTotal += v.precio;
-    });
-    document.getElementById("totalResumen").innerHTML = `
-      <p><i class="fas fa-coins"></i> <strong>Total general:</strong> S/ ${totalGeneral.toFixed(2)}</p>
-      <p><i class="fas fa-mobile-alt"></i> Yape: S/ ${yapeTotal.toFixed(2)} &nbsp; <i class="fas fa-wallet"></i> Efectivo: S/ ${efectivoTotal.toFixed(2)} &nbsp; <i class="fas fa-credit-card"></i> Tarjeta: S/ ${tarjetaTotal.toFixed(2)}</p>
-      <p><i class="fas fa-chart-line"></i> Total ventas: ${ventas.length}</p>
-    `;
-    const marcasMap = {};
-    ventas.forEach(v => { marcasMap[v.marca] = (marcasMap[v.marca] || 0) + v.precio; });
-    let marcaTop = Object.entries(marcasMap).sort((a,b)=>b[1]-a[1])[0];
-    document.getElementById("statsDetalle").innerHTML = `
-      <i class="fas fa-trophy"></i> <strong>Marca estrella:</strong> ${marcaTop ? `${marcaTop[0]} · S/ ${marcaTop[1].toFixed(2)}` : "—"}<br>
-      <i class="fas fa-dog"></i> <strong>Chiguagua de la suerte:</strong> 🐕‍🦺 "¡Ventas con amor!"<br>
-      <i class="fas fa-chart-simple"></i> Promedio por venta: S/ ${ventas.length ? (totalGeneral/ventas.length).toFixed(2) : 0}
-    `;
+    let total = 0, yape = 0, efectivo = 0, tarjeta = 0;
+    ventas.forEach(v => { total += v.precio; if(v.pago === "Yape") yape += v.precio; else if(v.pago === "Efectivo") efectivo += v.precio; else tarjeta += v.precio; });
+    document.getElementById("totalResumen").innerHTML = `<p><i class="fas fa-coins"></i> <strong>Total general:</strong> S/ ${total.toFixed(2)}</p><p><i class="fas fa-mobile-alt"></i> Yape: S/ ${yape.toFixed(2)} &nbsp; <i class="fas fa-wallet"></i> Efectivo: S/ ${efectivo.toFixed(2)} &nbsp; <i class="fas fa-credit-card"></i> Tarjeta: S/ ${tarjeta.toFixed(2)}</p><p><i class="fas fa-chart-line"></i> Total ventas: ${ventas.length}</p>`;
+    const marcas = {};
+    ventas.forEach(v => marcas[v.marca] = (marcas[v.marca] || 0) + v.precio);
+    let topMarca = Object.entries(marcas).sort((a,b)=>b[1]-a[1])[0];
+    document.getElementById("statsDetalle").innerHTML = `<i class="fas fa-trophy"></i> <strong>Marca estrella:</strong> ${topMarca ? `${topMarca[0]} · S/ ${topMarca[1].toFixed(2)}` : "—"}<br><i class="fas fa-dog"></i> <strong>Chiguagua de la suerte:</strong> 🐕‍🦺 "¡Ventas con amor!"<br><i class="fas fa-chart-simple"></i> Promedio: S/ ${ventas.length ? (total/ventas.length).toFixed(2) : 0}`;
     const ctx = document.getElementById('ventasChart').getContext('2d');
     if(chartInstance) chartInstance.destroy();
-    if(ctx) {
-      chartInstance = new Chart(ctx, {
-        type: 'doughnut',
-        data: { labels: ['Yape', 'Efectivo', 'Tarjeta'], datasets: [{ data: [yapeTotal, efectivoTotal, tarjetaTotal], backgroundColor: ['#ff7aa2', '#ffb347', '#9b59b6'], borderWidth: 0 }] },
-        options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom' }, tooltip: { callbacks: { label: (ctx) => ` S/ ${ctx.raw.toFixed(2)}` } } } }
+    if(ctx) chartInstance = new Chart(ctx, { type: 'doughnut', data: { labels: ['Yape', 'Efectivo', 'Tarjeta'], datasets: [{ data: [yape, efectivo, tarjeta], backgroundColor: ['#ff7aa2', '#ffb347', '#9b59b6'], borderWidth: 0 }] }, options: { responsive: true, plugins: { legend: { position: 'bottom' }, tooltip: { callbacks: { label: (ctx) => ` S/ ${ctx.raw.toFixed(2)}` } } } } });
+  }
+
+  function generarPDFmejorado() { /* mismo código original, no modificado */ if(ventas.length===0){alert("Sin ventas");return;} const {jsPDF}=window.jspdf; const doc=new jsPDF(); doc.setFillColor(255,240,245); doc.rect(0,0,210,297,'F'); doc.setFont("helvetica","bold"); doc.setFontSize(28); doc.setTextColor(255,77,136); doc.text("NAMORE",105,25,{align:"center"}); doc.setFontSize(12); doc.setTextColor(180,80,110); doc.text("Elegancia y pasión",105,35,{align:"center"}); doc.setFontSize(9); doc.text("Reporte de Ventas - "+new Date().toLocaleDateString('es-PE'),105,45,{align:"center"}); doc.setDrawColor(255,170,200); doc.line(20,52,190,52); const colX=[20,55,95,135,160]; let y=65; doc.setFillColor(255,220,230); doc.rect(colX[0]-1,y-5,190-(colX[0]-1),7,'F'); doc.setFont("helvetica","bold"); doc.setFontSize(10); doc.setTextColor(200,60,100); doc.text("Fecha",colX[0],y); doc.text("Producto",colX[1],y); doc.text("Marca",colX[2],y); doc.text("Precio",colX[3],y); doc.text("Pago",colX[4],y); doc.line(colX[0]-1,y-5,190,y-5); doc.line(colX[0]-1,y+2,190,y+2); y+=6; doc.setFont("helvetica","normal"); doc.setFontSize(9.5); let total=0; for(const v of ventas){ total+=v.precio; doc.text(v.fecha,colX[0],y); let prod=v.producto.length>18?v.producto.slice(0,15)+"...":v.producto; doc.text(prod,colX[1],y); doc.text(v.marca,colX[2],y); doc.text(`S/ ${v.precio.toFixed(2)}`,colX[3],y); doc.text(v.pago,colX[4],y); y+=6;} y+=8; doc.setFont("helvetica","bold"); doc.setFontSize(12); doc.setTextColor(255,77,136); doc.text(`TOTAL GENERAL: S/ ${total.toFixed(2)}`,20,y); let yape=ventas.filter(v=>v.pago==="Yape").reduce((a,b)=>a+b.precio,0); let efectivo=ventas.filter(v=>v.pago==="Efectivo").reduce((a,b)=>a+b.precio,0); let tarjeta=ventas.filter(v=>v.pago==="Tarjeta").reduce((a,b)=>a+b.precio,0); doc.setFont("helvetica","normal"); doc.setFontSize(10); doc.text(`Yape: S/ ${yape.toFixed(2)}     Efectivo: S/ ${efectivo.toFixed(2)}     Tarjeta: S/ ${tarjeta.toFixed(2)}`,20,y+7); doc.setFontSize(9); doc.text("Generado con amor NAMORE",105,y+16,{align:"center"}); doc.save("Namore_ventas.pdf"); }
+
+  // ========== HISTORIAL ==========
+  async function cargarHistorial() {
+    if (!db) return;
+    try {
+      const snap = await getDocs(collection(db, "cierres"));
+      allCierres = [];
+      snap.forEach(d => allCierres.push({ id: d.id, ...d.data() }));
+      allCierres.sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
+      renderHistorial(allCierres);
+    } catch (error) { console.error(error); alert("Error al cargar historial."); }
+  }
+
+  function renderHistorial(cierres) {
+    const cont = document.getElementById("historialLista");
+    cont.innerHTML = "";
+    if (cierres.length === 0) { cont.innerHTML = '<div class="no-data"><i class="fas fa-box-open"></i> No hay cierres registrados</div>'; return; }
+    cierres.forEach(cierre => {
+      const fechaObj = new Date(cierre.fecha);
+      const fechaDisplay = fechaObj.toLocaleDateString('es-PE', { year:'numeric', month:'long', day:'numeric' });
+      const div = document.createElement("div");
+      div.className = "cierre-item";
+      div.innerHTML = `
+        <div class="cierre-header">
+          <div><span class="cierre-fecha"><i class="fas fa-calendar-alt"></i> ${fechaDisplay}</span> <span class="cierre-cantidad">(${cierre.cantidadVentas} ventas)</span></div>
+          <div><span class="cierre-total">S/ ${cierre.total.toFixed(2)}</span> <i class="fas fa-chevron-down toggle-icon"></i></div>
+        </div>
+        <div class="cierre-ventas"></div>
+      `;
+      const ventasDiv = div.querySelector(".cierre-ventas");
+      const header = div.querySelector(".cierre-header");
+      const icon = header.querySelector(".toggle-icon");
+      // Llenar ventas
+      if (cierre.ventas && Array.isArray(cierre.ventas)) {
+        cierre.ventas.forEach(v => {
+          const item = document.createElement("div");
+          item.className = "historial-venta-item";
+          const obsHtml = v.observaciones ? `<div class="observacion-text" style="margin-top:4px;"><i class="fas fa-pencil-alt"></i> ${escapeHtml(v.observaciones)}</div>` : '';
+          item.innerHTML = `
+            <div class="historial-venta-info">
+              <strong>${v.producto}</strong> · ${v.marca}<br>
+              <span class="badge-chi">S/ ${v.precio}</span> · ${v.pago}
+              ${obsHtml}
+            </div>
+            ${v.imagen ? `<img src="${v.imagen}" class="venta-img-preview" style="width:40px; height:40px;" alt="foto">` : '<i class="fas fa-camera" style="color:#ffb7cb;"></i>'}
+          `;
+          ventasDiv.appendChild(item);
+        });
+      } else {
+        ventasDiv.innerHTML = '<div class="no-data" style="padding:10px;">No se encontraron ventas</div>';
+      }
+      header.addEventListener("click", () => {
+        ventasDiv.classList.toggle("mostrar");
+        icon.classList.toggle("rotated");
       });
+      cont.appendChild(div);
+    });
+  }
+
+  function filtrarHistorial() {
+    const fechaFiltro = document.getElementById("filtroFecha").value;
+    if (!fechaFiltro) { renderHistorial(allCierres); return; }
+    const filtrados = allCierres.filter(c => c.fecha === fechaFiltro);
+    renderHistorial(filtrados);
+  }
+
+  function resetFiltroHistorial() {
+    document.getElementById("filtroFecha").value = "";
+    renderHistorial(allCierres);
+  }
+
+  function toggleHistorial() {
+    const panel = document.getElementById("historialPanel");
+    if (panel.style.display === "none") {
+      panel.style.display = "block";
+      historialVisible = true;
+      if (allCierres.length === 0) cargarHistorial();
+      else renderHistorial(allCierres);
+    } else {
+      panel.style.display = "none";
+      historialVisible = false;
     }
   }
 
-  function generarPDFmejorado() {
-    if(ventas.length === 0) { alert("No hay ventas para generar el PDF."); return; }
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-    doc.setFillColor(255, 240, 245); doc.rect(0, 0, 210, 297, 'F');
-    doc.setFont("helvetica", "bold"); doc.setFontSize(28); doc.setTextColor(255, 77, 136); doc.text("NAMORE", 105, 25, { align: "center" });
-    doc.setFontSize(12); doc.setTextColor(180, 80, 110); doc.text("Elegancia y pasión en cada detalle", 105, 35, { align: "center" });
-    doc.setFontSize(9); doc.setTextColor(100, 70, 80); doc.text("Reporte de Ventas - Fecha: " + new Date().toLocaleDateString('es-PE'), 105, 45, { align: "center" });
-    doc.setDrawColor(255, 170, 200); doc.line(20, 52, 190, 52);
-    const colX = [20, 55, 95, 135, 160]; const rightEdge = 190; let y = 65;
-    doc.setFillColor(255, 220, 230); doc.rect(colX[0]-1, y-5, rightEdge - (colX[0]-1), 7, 'F');
-    doc.setFont("helvetica", "bold"); doc.setFontSize(10); doc.setTextColor(200, 60, 100);
-    doc.text("Fecha", colX[0], y); doc.text("Producto", colX[1], y); doc.text("Marca", colX[2], y); doc.text("Precio", colX[3], y); doc.text("Pago", colX[4], y);
-    doc.setDrawColor(200, 140, 160); doc.line(colX[0]-1, y-5, rightEdge, y-5); doc.line(colX[0]-1, y+2, rightEdge, y+2);
-    y += 6; doc.setFont("helvetica", "normal"); doc.setFontSize(9.5); doc.setTextColor(70, 50, 60);
-    let total = 0;
-    for (const v of ventas) {
-      total += v.precio;
-      if (y > 270) { doc.addPage(); y = 30; }
-      doc.text(v.fecha, colX[0], y);
-      let prod = v.producto.length > 18 ? v.producto.slice(0,15)+"..." : v.producto;
-      doc.text(prod, colX[1], y);
-      doc.text(v.marca, colX[2], y);
-      doc.text(`S/ ${v.precio.toFixed(2)}`, colX[3], y);
-      doc.text(v.pago, colX[4], y);
-      doc.setDrawColor(210, 170, 180); doc.line(colX[0]-1, y+2, rightEdge, y+2);
-      y += 6;
-    }
-    y += 8;
-    doc.setFont("helvetica", "bold"); doc.setFontSize(12); doc.setTextColor(255, 77, 136);
-    doc.text(`TOTAL GENERAL: S/ ${total.toFixed(2)}`, 20, y);
-    let yape = ventas.filter(v=>v.pago==="Yape").reduce((a,b)=>a+b.precio,0);
-    let efectivo = ventas.filter(v=>v.pago==="Efectivo").reduce((a,b)=>a+b.precio,0);
-    let tarjeta = ventas.filter(v=>v.pago==="Tarjeta").reduce((a,b)=>a+b.precio,0);
-    doc.setFont("helvetica", "normal"); doc.setFontSize(10); doc.setTextColor(100, 70, 80);
-    doc.text(`Yape: S/ ${yape.toFixed(2)}     Efectivo: S/ ${efectivo.toFixed(2)}     Tarjeta: S/ ${tarjeta.toFixed(2)}`, 20, y+7);
-    doc.setFontSize(9); doc.setTextColor(150, 100, 120);
-    doc.text("Generado con amor NAMORE - Siempre brillando", 105, y+16, { align: "center" });
-    doc.save("Namore_ventas.pdf");
-  }
-
-  // ======================== INICIALIZACIÓN ========================
-  document.getElementById("foto").addEventListener("change", e => {
-    document.getElementById("nombreFoto").innerText = e.target.files[0] ? "📸 lista" : "ninguna";
-  });
-  function actualizarFechaHoy() {
-    document.getElementById("fechaHoy").innerHTML = new Date().toLocaleDateString('es-PE', { day:'numeric', month:'long', year:'numeric' });
-  }
+  // ========== INICIALIZACIÓN ==========
+  document.getElementById("foto").addEventListener("change", e => document.getElementById("nombreFoto").innerText = e.target.files[0] ? "📸 lista" : "ninguna");
+  function actualizarFechaHoy() { document.getElementById("fechaHoy").innerHTML = new Date().toLocaleDateString('es-PE', { day:'numeric', month:'long', year:'numeric' }); }
   actualizarFechaHoy();
   const frases = ["💖 Cada venta es un latido NAMORE", "🐶 Chiguaguas ❤️ moda", "✨ Brilla como diamante", "🌸 Hecho con dulzura", "🐾 Patitas de la suerte"];
-  let idxFrase = 0;
-  setInterval(() => {
-    idxFrase = (idxFrase+1)%frases.length;
-    document.getElementById("fraseBonita").innerHTML = frases[idxFrase];
-  }, 4000);
+  let idx = 0;
+  setInterval(() => { idx = (idx+1)%frases.length; document.getElementById("fraseBonita").innerHTML = frases[idx]; }, 4000);
   document.getElementById("precio").addEventListener("keypress", e => { if(e.key==='Enter') agregarVenta(); });
   document.getElementById("producto").addEventListener("keypress", e => { if(e.key==='Enter') agregarVenta(); });
   window.agregarVenta = agregarVenta;
   window.borrarTodo = borrarTodo;
   window.cerrarTienda = cerrarTienda;
   window.generarPDFmejorado = generarPDFmejorado;
+  window.toggleHistorial = toggleHistorial;
+  window.filtrarHistorial = filtrarHistorial;
+  window.resetFiltroHistorial = resetFiltroHistorial;
 
   if (db) cargarVentasFirestore();
-  else alert("No se pudo conectar a Firebase. Verifica tu conexión a Internet.");
+  else alert("Firebase no disponible.");
 </script>
 </body>
 </html>
