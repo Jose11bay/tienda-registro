@@ -437,10 +437,8 @@
     }
   }
 
-  function guardarStorage() {
-    localStorage.setItem("namoreVentasHermosas_v2", JSON.stringify(ventas));
-  }
-
+import { collection, addDoc } from "firebase/firestore";
+import { db } from "./firebase.js";
   // funciones principales
   function agregarVenta() {
     const producto = document.getElementById("producto").value.trim();
