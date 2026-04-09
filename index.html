@@ -757,6 +757,11 @@ import { db } from "./src/firebase.js";  // funciones principales
   cargarStorage();
   document.getElementById("precio").addEventListener("keypress", function(e){ if(e.key==='Enter') agregarVenta(); });
   document.getElementById("producto").addEventListener("keypress", function(e){ if(e.key==='Enter') agregarVenta(); });
+window.agregarVenta = agregarVenta;
+window.eliminarVenta = eliminarVenta;
+window.editarObservaciones = editarObservaciones;
+window.borrarTodo = borrarTodo;
+window.generarPDFmejorado = generarPDFmejorado;
 </script>
 </body>
 </html>
