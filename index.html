@@ -14,11 +14,7 @@
       background: linear-gradient(145deg, #fff5f8 0%, #ffe0e8 100%);
       font-family: 'Quicksand', sans-serif;
       padding: 20px;
-      position: relative;
     }
-    body::before { content: "🐾🐶🐾❤️🐾"; position: fixed; bottom: 10px; right: 10px; font-size: 45px; opacity: 0.2; pointer-events: none; white-space: pre; z-index: 0; }
-    body::after { content: "✨🌸✨"; position: fixed; top: 20px; left: 20px; font-size: 55px; opacity: 0.15; pointer-events: none; z-index: 0; }
-
     .glass-container {
       max-width: 1300px;
       margin: 0 auto;
@@ -27,9 +23,6 @@
       border-radius: 48px;
       box-shadow: 0 25px 45px rgba(255, 77, 136, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.6);
       padding: 30px;
-      transition: all 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-      position: relative;
-      z-index: 2;
       animation: fadeSlideUp 0.6s ease-out;
     }
     @keyframes fadeSlideUp {
@@ -46,16 +39,15 @@
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
-      text-shadow: 8px 8px 20px rgba(255, 100, 150, 0.3);
       letter-spacing: 5px;
       animation: shine 3s infinite alternate;
     }
     @keyframes shine { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
-    .sub-lema { font-size: 1.1rem; font-weight: 500; color: #b34e71; background: rgba(255, 245, 240, 0.7); display: inline-block; padding: 6px 20px; border-radius: 60px; backdrop-filter: blur(4px); margin-top: 8px; }
-    .chiguagua-love { background: #ffecf0; border-radius: 100px; padding: 10px 25px; display: inline-flex; align-items: center; gap: 15px; margin-top: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); flex-wrap: wrap; justify-content: center; }
+    .sub-lema { font-size: 1.1rem; font-weight: 500; color: #b34e71; background: rgba(255, 245, 240, 0.7); display: inline-block; padding: 6px 20px; border-radius: 60px; margin-top: 8px; }
+    .chiguagua-love { background: #ffecf0; border-radius: 100px; padding: 10px 25px; display: inline-flex; align-items: center; gap: 15px; margin-top: 10px; flex-wrap: wrap; justify-content: center; }
     .chiguagua-love span { font-size: 2rem; animation: bounce 1.5s infinite; display: inline-block; }
     @keyframes bounce { 0%,100%{ transform: translateY(0);} 50%{ transform: translateY(-5px);} }
-    .chiguagua-text { font-weight: 700; color: #c95a7a; background: white; border-radius: 60px; padding: 5px 15px; font-size: 1rem; }
+    .chiguagua-text { font-weight: 700; color: #c95a7a; background: white; border-radius: 60px; padding: 5px 15px; }
     .dashboard-grid { display: grid; grid-template-columns: 1fr 0.9fr; gap: 30px; margin-top: 25px; }
     @media (max-width: 800px) { .dashboard-grid { grid-template-columns: 1fr; } .namore-glam { font-size: 3rem; } }
     .card {
@@ -63,79 +55,50 @@
       border-radius: 32px;
       padding: 22px 24px;
       box-shadow: 0 12px 28px rgba(0,0,0,0.08);
-      transition: all 0.3s ease;
       border: 1px solid rgba(255, 180, 200, 0.5);
       animation: fadeSlideUp 0.5s ease-out backwards;
     }
-    .card:nth-child(1) { animation-delay: 0.1s; }
-    .card:nth-child(2) { animation-delay: 0.2s; }
     .card h3 { font-size: 1.6rem; color: #ff4d88; margin-bottom: 20px; font-weight: 700; border-left: 6px solid #ff99bb; padding-left: 15px; }
     .form-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 25px; }
-    .form-grid input, .form-grid select { flex: 1 1 160px; padding: 12px 16px; border-radius: 60px; border: 1px solid #ffcddb; background: #fffbfd; font-family: 'Quicksand', sans-serif; font-weight: 500; transition: 0.2s; }
+    .form-grid input, .form-grid select { flex: 1 1 160px; padding: 12px 16px; border-radius: 60px; border: 1px solid #ffcddb; background: #fffbfd; font-family: 'Quicksand', sans-serif; font-weight: 500; }
     .form-grid input:focus, .form-grid select:focus { outline: none; border-color: #ff4d88; box-shadow: 0 0 0 3px rgba(255,77,136,0.2); }
-    .btn-primary, .btn-secondary {
-      transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
-      cursor: pointer;
-    }
+    .btn-primary, .btn-secondary { transition: transform 0.2s ease; cursor: pointer; }
     .btn-primary { background: #ff4d88; border: none; color: white; padding: 12px 28px; border-radius: 60px; font-weight: bold; box-shadow: 0 6px 14px rgba(255, 77, 136, 0.3); }
-    .btn-primary:hover { background: #e63e74; transform: scale(1.05); box-shadow: 0 10px 20px rgba(255, 77, 136, 0.4); }
-    .btn-primary:active { transform: scale(0.97); }
+    .btn-primary:hover { background: #e63e74; transform: scale(1.05); }
     .btn-secondary { background: #ffb7cb; color: #5a2e3e; border: none; padding: 8px 18px; border-radius: 40px; font-weight: 600; }
     .btn-secondary:hover { background: #ff9bb5; transform: scale(1.05); }
-    .btn-secondary:active { transform: scale(0.97); }
     .ventas-list { max-height: 380px; overflow-y: auto; padding-right: 5px; }
-    .venta-item { background: #fffafc; border-radius: 24px; padding: 12px 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; border: 1px solid #ffe2ec; transition: all 0.2s; }
-    .venta-item:hover { transform: translateX(5px); box-shadow: 0 5px 12px rgba(0,0,0,0.05); }
+    .venta-item { background: #fffafc; border-radius: 24px; padding: 12px 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; border: 1px solid #ffe2ec; }
     .venta-info { flex: 3; font-size: 0.9rem; }
-    .observacion-text { font-size: 0.75rem; color: #b3567a; background: #fff0f4; display: inline-block; padding: 2px 8px; border-radius: 40px; margin-top: 4px; max-width: 100%; word-break: break-word; }
-    .venta-img-preview { width: 48px; height: 48px; border-radius: 20px; object-fit: cover; margin-left: 10px; border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+    .observacion-text { font-size: 0.75rem; color: #b3567a; background: #fff0f4; display: inline-block; padding: 2px 8px; border-radius: 40px; margin-top: 4px; }
+    .venta-img-preview { width: 48px; height: 48px; border-radius: 20px; object-fit: cover; margin-left: 10px; border: 2px solid white; }
     .action-buttons { display: flex; align-items: center; gap: 5px; }
-    .edit-btn, .delete-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; transition: transform 0.1s; }
+    .edit-btn, .delete-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; }
     .edit-btn { color: #ffaa66; }
     .delete-btn { color: #ff99b5; }
-    .edit-btn:hover, .delete-btn:hover { transform: scale(1.2); }
     .total-resumen { background: #fff0f4; border-radius: 28px; padding: 18px; margin-top: 20px; text-align: center; }
     canvas#ventasChart { max-height: 220px; width: 100%; }
     .action-group { display: flex; gap: 12px; justify-content: flex-end; margin-top: 20px; flex-wrap: wrap; }
     footer { text-align: center; margin-top: 30px; font-size: 0.8rem; color: #c07f98; }
     .badge-chi { background: #ffdce6; border-radius: 60px; padding: 2px 12px; font-size: 0.75rem; display: inline-block; }
 
-    /* Historial - cada cierre individual con botón eliminar */
-    .historial-container {
-      margin-top: 25px;
-      border-top: 2px dashed #ffc2d4;
-      padding-top: 20px;
-      overflow: hidden;
-      transition: max-height 0.5s ease-out, opacity 0.4s ease;
-    }
+    /* Historial */
+    .historial-container { margin-top: 25px; border-top: 2px dashed #ffc2d4; padding-top: 20px; }
     .historial-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px; }
     .filtros { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-    .filtros input, .filtros button { padding: 8px 16px; border-radius: 40px; border: 1px solid #ffcddb; font-family: 'Quicksand', sans-serif; background: white; transition: 0.2s; }
+    .filtros input, .filtros button { padding: 8px 16px; border-radius: 40px; border: 1px solid #ffcddb; background: white; }
     .historial-lista { max-height: 500px; overflow-y: auto; }
-    .cierre-item { background: #fff5f7; border-radius: 28px; margin-bottom: 16px; overflow: hidden; border: 1px solid #ffe2ec; transition: all 0.2s; }
-    .cierre-header { background: #ffe3ec; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; border-radius: 28px; }
-    .cierre-header:hover { background: #ffd6e4; transform: translateX(3px); }
+    .cierre-item { background: #fff5f7; border-radius: 28px; margin-bottom: 16px; border: 1px solid #ffe2ec; }
+    .cierre-header { background: #ffe3ec; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-radius: 28px; }
+    .cierre-header:hover { background: #ffd6e4; }
     .cierre-fecha { font-weight: bold; color: #c95a7a; font-size: 1.1rem; }
     .cierre-total { font-weight: bold; color: #ff4d88; }
     .cierre-cantidad { color: #b3567a; font-size: 0.85rem; margin-left: 10px; }
-    .delete-cierre-btn { background: none; border: none; color: #ff99b5; font-size: 1.2rem; cursor: pointer; transition: transform 0.2s; margin-left: 12px; }
-    .delete-cierre-btn:hover { transform: scale(1.2); color: #e63e74; }
-    .cierre-ventas {
-      padding: 12px;
-      max-height: 0;
-      opacity: 0;
-      overflow: hidden;
-      transition: max-height 0.4s ease-out, opacity 0.3s ease, padding 0.2s;
-      background: white;
-      border-radius: 0 0 28px 28px;
-    }
-    .cierre-ventas.mostrar {
-      max-height: 2000px;
-      opacity: 1;
-      padding: 12px;
-    }
-    .historial-venta-item { background: #fffafc; border-radius: 20px; padding: 12px; margin-bottom: 12px; border: 1px solid #ffe2ec; display: flex; justify-content: space-between; flex-wrap: wrap; align-items: center; transition: 0.2s; }
-    .historial-venta-item:hover { transform: scale(1.01); background: #fff5f7; }
+    .delete-cierre-btn { background: none; border: none; color: #ff99b5; font-size: 1.2rem; cursor: pointer; margin-left: 12px; }
+    .delete-cierre-btn:hover { color: #e63e74; transform: scale(1.1); }
+    .cierre-ventas { padding: 0 12px; max-height: 0; opacity: 0; overflow: hidden; transition: max-height 0.3s ease, opacity 0.2s ease, padding 0.2s; background: white; border-radius: 0 0 28px 28px; }
+    .cierre-ventas.mostrar { max-height: 2000px; opacity: 1; padding: 12px; }
+    .historial-venta-item { background: #fffafc; border-radius: 20px; padding: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; align-items: center; border: 1px solid #ffe2ec; }
     .historial-venta-info { flex: 1; font-size: 0.85rem; }
     .toggle-icon { transition: transform 0.3s ease; }
     .rotated { transform: rotate(180deg); }
@@ -152,27 +115,20 @@
       justify-content: center;
       align-items: center;
       z-index: 1000;
-      animation: fadeIn 0.3s ease;
     }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     .modal-content {
       background: white;
       border-radius: 48px;
       padding: 25px;
       width: 320px;
       box-shadow: 0 20px 40px rgba(255,77,136,0.3);
-      animation: slideUp 0.3s ease;
     }
-    @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     .modal-header h3 { color: #ff4d88; margin: 0; }
-    .close-modal { background: none; border: none; font-size: 1.8rem; cursor: pointer; color: #ff99b5; transition: 0.2s; }
-    .close-modal:hover { transform: scale(1.2); color: #ff4d88; }
-    .calc-display { background: #fff0f4; padding: 20px; text-align: right; font-size: 2rem; border-radius: 32px; margin-bottom: 20px; font-weight: bold; color: #5a2e3e; word-break: break-word; min-height: 80px; }
+    .close-modal { background: none; border: none; font-size: 1.8rem; cursor: pointer; color: #ff99b5; }
+    .calc-display { background: #fff0f4; padding: 20px; text-align: right; font-size: 2rem; border-radius: 32px; margin-bottom: 20px; font-weight: bold; color: #5a2e3e; min-height: 80px; word-break: break-word; }
     .calc-buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-    .calc-btn { background: #ffe3ec; border: none; padding: 15px; font-size: 1.3rem; border-radius: 60px; cursor: pointer; transition: 0.1s; font-weight: bold; color: #b34e71; }
-    .calc-btn:hover { background: #ffd6e4; transform: scale(1.05); }
-    .calc-btn:active { transform: scale(0.95); }
+    .calc-btn { background: #ffe3ec; border: none; padding: 15px; font-size: 1.3rem; border-radius: 60px; cursor: pointer; font-weight: bold; color: #b34e71; }
     .calc-equal { background: #ff4d88; color: white; }
     .calc-clear { background: #ffb7cb; color: #5a2e3e; }
   </style>
@@ -204,14 +160,14 @@
         <button class="btn-primary" onclick="agregarVenta()"><i class="fas fa-plus-circle"></i> Agregar venta</button>
       </div>
       <h3><i class="fas fa-list-ul"></i> Últimas ventas</h3>
-      <div class="ventas-list" id="listaVentasContainer"><ul id="lista" style="list-style: none;"></ul></div>
+      <div class="ventas-list"><ul id="lista" style="list-style: none;"></ul></div>
       <div class="total-resumen" id="totalResumen"></div>
       <div class="action-group">
         <button class="btn-secondary" onclick="borrarTodo()"><i class="fas fa-trash-alt"></i> Limpiar todo</button>
-        <button class="btn-primary" onclick="cerrarTienda()"><i class="fas fa-store"></i> Cerrar tienda del día</button>
-        <button class="btn-primary" onclick="toggleHistorial()"><i class="fas fa-history"></i> Ver historial</button>
+        <button class="btn-primary" onclick="cerrarTienda()"><i class="fas fa-store"></i> Cerrar tienda</button>
+        <button class="btn-primary" onclick="toggleHistorial()"><i class="fas fa-history"></i> Historial</button>
         <button class="btn-primary" onclick="abrirCalculadora()"><i class="fas fa-calculator"></i> Calculadora</button>
-        <button class="btn-primary" onclick="generarPDFmejorado()"><i class="fas fa-file-pdf"></i> PDF premium</button>
+        <button class="btn-primary" onclick="generarPDF()"><i class="fas fa-file-pdf"></i> PDF</button>
       </div>
     </div>
     <div class="card">
@@ -220,7 +176,7 @@
       <div id="statsDetalle" style="font-size:0.9rem; background:#fef6f9; border-radius: 28px; padding: 15px; margin-top: 15px;"></div>
       <hr style="margin: 20px 0; border-color:#ffd9e3;">
       <div style="display: flex; justify-content: space-between; flex-wrap:wrap;">
-        <div><i class="fas fa-dog"></i> <strong>Chiguaguas crew</strong> 🐾</div>
+        <div><i class="fas fa-dog"></i> Chiguaguas crew 🐾</div>
         <div><i class="fas fa-music"></i> <span id="fraseBonita">"Brilla como NAMORE"</span></div>
         <div><i class="fas fa-calendar-alt"></i> <span id="fechaHoy"></span></div>
       </div>
@@ -230,7 +186,7 @@
     <div class="historial-header">
       <h3 style="color:#ff4d88;"><i class="fas fa-archive"></i> Historial de cierres</h3>
       <div class="filtros">
-        <input type="date" id="filtroFecha" placeholder="Filtrar por fecha">
+        <input type="date" id="filtroFecha">
         <button class="btn-secondary" onclick="filtrarHistorial()"><i class="fas fa-filter"></i> Filtrar</button>
         <button class="btn-secondary" onclick="resetFiltroHistorial()"><i class="fas fa-eye"></i> Ver todo</button>
       </div>
@@ -282,124 +238,96 @@
     appId: "1:758569170962:web:71dd645f5aee29f19340cb"
   };
 
-  let app, db;
-  try {
-    app = initializeApp(firebaseConfig);
-    db = getFirestore(app);
-    console.log("Firebase listo");
-  } catch (error) {
-    console.error("Firebase error:", error);
-    alert("Error de conexión con Firebase.");
-  }
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
   let ventas = [];
-  let online = true;
-  let allCierres = [];      // Array de documentos de cierre (sin agrupar)
+  let allCierres = [];
   let historialVisible = false;
-  let currentFilterDate = ""; // para mantener filtro
+  let chartInstance = null;
 
-  window.addEventListener('online', () => { online = true; cargarVentasFirestore(); });
-  window.addEventListener('offline', () => { online = false; alert("Sin conexión. Los cambios no se guardarán."); });
-
-  // ========== FUNCIÓN PARA FECHA LOCAL PERÚ (YYYY-MM-DD) ==========
+  // ========== FECHA LOCAL PERÚ ==========
   function getPeruDateYYYYMMDD() {
-    // Usamos la zona horaria de Lima para obtener la fecha correcta sin desfase UTC
     return new Date().toLocaleDateString('en-CA', { timeZone: 'America/Lima' });
   }
-
-  // ========== CRUD VENTAS ==========
-  async function cargarVentasFirestore() {
-    if (!db) return;
-    try {
-      const qs = await getDocs(collection(db, "ventas"));
-      ventas = [];
-      qs.forEach(d => ventas.push({ id: d.id, ...d.data() }));
-      ventas.sort((a,b) => (b.fechaReal || 0) - (a.fechaReal || 0));
-      mostrarVentas();
-      actualizarGraficoYResumen();
-    } catch (error) { console.error(error); alert("Error cargando ventas."); }
+  function getPeruDateVisible() {
+    return new Date().toLocaleDateString('es-PE', { timeZone: 'America/Lima', year: 'numeric', month: 'long', day: 'numeric' });
   }
 
-  async function guardarVentaFinal(producto, marca, precio, pago, fechaVisible, imagenData, observaciones) {
-    if (!db) return;
-    try {
-      const nueva = {
-        producto, marca, precio, pago,
-        fecha: fechaVisible,           // fecha legible para mostrar (ej: "9 de abril de 2026")
-        fechaReal: new Date().getTime(),
-        imagen: imagenData || null,
-        observaciones: observaciones || "",
-        timestamp: new Date().toISOString()
-      };
-      const docRef = await addDoc(collection(db, "ventas"), nueva);
-      ventas.unshift({ id: docRef.id, ...nueva });
-      mostrarVentas();
-      actualizarGraficoYResumen();
-    } catch (error) { alert("Error al guardar."); }
+  // ========== VENTAS CRUD ==========
+  async function cargarVentas() {
+    const snap = await getDocs(collection(db, "ventas"));
+    ventas = [];
+    snap.forEach(d => ventas.push({ id: d.id, ...d.data() }));
+    ventas.sort((a,b) => (b.fechaReal || 0) - (a.fechaReal || 0));
+    mostrarVentas();
+    actualizarResumen();
+  }
+
+  async function guardarVenta(producto, marca, precio, pago, fechaVisible, imagenData) {
+    const nueva = {
+      producto, marca, precio, pago,
+      fecha: fechaVisible,
+      fechaReal: Date.now(),
+      imagen: imagenData || null,
+      observaciones: "",
+      timestamp: new Date().toISOString()
+    };
+    const docRef = await addDoc(collection(db, "ventas"), nueva);
+    ventas.unshift({ id: docRef.id, ...nueva });
+    mostrarVentas();
+    actualizarResumen();
   }
 
   async function eliminarVenta(id) {
-    if (!db || !confirm("¿Eliminar esta venta?")) return;
-    try {
-      await deleteDoc(doc(db, "ventas", id));
-      ventas = ventas.filter(v => v.id !== id);
-      mostrarVentas();
-      actualizarGraficoYResumen();
-    } catch (error) { alert("Error al eliminar."); }
+    if (!confirm("¿Eliminar esta venta?")) return;
+    await deleteDoc(doc(db, "ventas", id));
+    ventas = ventas.filter(v => v.id !== id);
+    mostrarVentas();
+    actualizarResumen();
   }
 
   async function editarObservaciones(id, obsActual) {
     const nueva = prompt("Observación:", obsActual || "");
-    if (nueva !== null && db) {
-      try {
-        await updateDoc(doc(db, "ventas", id), { observaciones: nueva.trim() });
-        const v = ventas.find(v => v.id === id);
-        if (v) v.observaciones = nueva.trim();
-        mostrarVentas();
-        actualizarGraficoYResumen();
-      } catch (error) { alert("Error al actualizar."); }
+    if (nueva !== null) {
+      await updateDoc(doc(db, "ventas", id), { observaciones: nueva.trim() });
+      const v = ventas.find(v => v.id === id);
+      if (v) v.observaciones = nueva.trim();
+      mostrarVentas();
+      actualizarResumen();
     }
   }
 
   async function borrarTodo() {
-    if (!db || !confirm("⚠️ Eliminar TODAS las ventas actuales? Esta acción no se puede deshacer.")) return;
-    try {
-      for (const v of ventas) await deleteDoc(doc(db, "ventas", v.id));
-      ventas = [];
-      mostrarVentas();
-      actualizarGraficoYResumen();
-    } catch (error) { alert("Error al limpiar."); }
+    if (!confirm("⚠️ Eliminar TODAS las ventas actuales?")) return;
+    for (const v of ventas) await deleteDoc(doc(db, "ventas", v.id));
+    ventas = [];
+    mostrarVentas();
+    actualizarResumen();
   }
 
-  // ========== CERRAR TIENDA (con fecha local Perú) ==========
+  // ========== CERRAR TIENDA ==========
   async function cerrarTienda() {
-    if (!db) { alert("Firebase no disponible"); return; }
     if (ventas.length === 0) { alert("No hay ventas para cerrar."); return; }
-    try {
-      const total = ventas.reduce((s, v) => s + v.precio, 0);
-      // Fecha local Perú en formato YYYY-MM-DD (para filtros)
-      const fechaLocal = getPeruDateYYYYMMDD();
-      // Fecha visible para mostrar en el header del historial (formato legible)
-      const fechaVisible = new Date().toLocaleDateString('es-PE', { timeZone: 'America/Lima', year:'numeric', month:'long', day:'numeric' });
-      
-      const cierre = {
-        fecha: fechaLocal,               // YYYY-MM-DD para filtrar
-        fechaVisible: fechaVisible,     // texto legible
-        fechaReal: new Date().getTime(),
-        total: total,
-        ventas: ventas.map(v => ({ ...v })), // copia completa incluyendo imágenes
-        cantidadVentas: ventas.length,
-        timestamp: new Date().toISOString()
-      };
-      await addDoc(collection(db, "cierres"), cierre);
-      // Eliminar las ventas actuales
-      for (const v of ventas) await deleteDoc(doc(db, "ventas", v.id));
-      ventas = [];
-      mostrarVentas();
-      actualizarGraficoYResumen();
-      alert("✅ Día cerrado correctamente.");
-      if (historialVisible) cargarHistorial();
-    } catch (error) { console.error(error); alert("Error al cerrar día."); }
+    const total = ventas.reduce((s, v) => s + v.precio, 0);
+    const fechaLocal = getPeruDateYYYYMMDD();
+    const fechaVisible = getPeruDateVisible();
+    const cierre = {
+      fecha: fechaLocal,
+      fechaVisible: fechaVisible,
+      fechaReal: Date.now(),
+      total: total,
+      ventas: ventas.map(v => ({ ...v })),
+      cantidadVentas: ventas.length,
+      timestamp: new Date().toISOString()
+    };
+    await addDoc(collection(db, "cierres"), cierre);
+    for (const v of ventas) await deleteDoc(doc(db, "ventas", v.id));
+    ventas = [];
+    mostrarVentas();
+    actualizarResumen();
+    alert("✅ Día cerrado correctamente.");
+    if (historialVisible) cargarHistorial();
   }
 
   // ========== UI VENTAS ==========
@@ -409,17 +337,16 @@
     let precio = parseFloat(document.getElementById("precio").value);
     const pago = document.getElementById("pago").value;
     const archivo = document.getElementById("foto").files[0];
-    // Fecha legible para mostrar en la venta (hora local Perú)
-    const fechaVisible = new Date().toLocaleDateString('es-PE', { timeZone: 'America/Lima', year:'numeric', month:'long', day:'numeric' });
-    if(!producto) { alert("Producto vacío"); return; }
-    if(isNaN(precio) || precio <= 0) { alert("Precio válido"); return; }
+    const fechaVisible = getPeruDateVisible();
+    if (!producto) { alert("Producto vacío"); return; }
+    if (isNaN(precio) || precio <= 0) { alert("Precio válido"); return; }
     precio = parseFloat(precio.toFixed(2));
-    if(archivo) {
+    if (archivo) {
       const reader = new FileReader();
-      reader.onload = e => guardarVentaFinal(producto, marca, precio, pago, fechaVisible, e.target.result, "");
+      reader.onload = e => guardarVenta(producto, marca, precio, pago, fechaVisible, e.target.result);
       reader.readAsDataURL(archivo);
     } else {
-      guardarVentaFinal(producto, marca, precio, pago, fechaVisible, null, "");
+      guardarVenta(producto, marca, precio, pago, fechaVisible, null);
     }
     document.getElementById("producto").value = "";
     document.getElementById("precio").value = "";
@@ -430,15 +357,18 @@
   function mostrarVentas() {
     const ul = document.getElementById("lista");
     ul.innerHTML = "";
-    if(ventas.length === 0) { ul.innerHTML = "<li style='text-align:center; padding:20px;'><i class='fas fa-paw'></i> Aún no hay ventas… 🐶</li>"; return; }
+    if (ventas.length === 0) {
+      ul.innerHTML = "<li style='text-align:center; padding:20px;'><i class='fas fa-paw'></i> Aún no hay ventas… 🐶</li>";
+      return;
+    }
     ventas.forEach(v => {
       const li = document.createElement("li");
       li.className = "venta-item";
       const obsHtml = v.observaciones ? `<div class="observacion-text"><i class="fas fa-pencil-alt"></i> ${escapeHtml(v.observaciones)}</div>` : '';
       li.innerHTML = `
         <div class="venta-info">
-          <strong>${v.fecha || 'Sin fecha'}</strong> · ${v.producto} · ${v.marca}<br>
-          <span class="badge-chi"><i class="fas fa-money-bill-wave"></i> S/ ${v.precio}</span> · <i class="fas fa-credit-card"></i> ${v.pago}
+          <strong>${v.fecha}</strong> · ${v.producto} · ${v.marca}<br>
+          <span class="badge-chi">S/ ${v.precio}</span> · ${v.pago}
           ${obsHtml}
         </div>
         <div class="action-buttons">
@@ -449,72 +379,104 @@
       `;
       ul.appendChild(li);
     });
-    document.querySelectorAll(".edit-btn").forEach(btn => btn.addEventListener("click", (e) => { e.stopPropagation(); editarObservaciones(btn.dataset.id, btn.dataset.obs); }));
-    document.querySelectorAll(".delete-btn").forEach(btn => btn.addEventListener("click", (e) => { e.stopPropagation(); eliminarVenta(btn.dataset.id); }));
+    document.querySelectorAll(".edit-btn").forEach(btn => btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      editarObservaciones(btn.dataset.id, btn.dataset.obs);
+    }));
+    document.querySelectorAll(".delete-btn").forEach(btn => btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      eliminarVenta(btn.dataset.id);
+    }));
   }
 
-  function escapeHtml(str) { return str ? str.replace(/[&<>]/g, m => m==='&'?'&amp;':m==='<'?'&lt;':'&gt;') : ''; }
-  function escapeAttr(str) { return str ? str.replace(/"/g, '&quot;') : ''; }
-
-  let chartInstance = null;
-  function actualizarGraficoYResumen() {
+  function actualizarResumen() {
     let total = 0, yape = 0, efectivo = 0, tarjeta = 0;
-    ventas.forEach(v => { total += v.precio; if(v.pago === "Yape") yape += v.precio; else if(v.pago === "Efectivo") efectivo += v.precio; else tarjeta += v.precio; });
-    document.getElementById("totalResumen").innerHTML = `<p><i class="fas fa-coins"></i> <strong>Total general:</strong> S/ ${total.toFixed(2)}</p><p><i class="fas fa-mobile-alt"></i> Yape: S/ ${yape.toFixed(2)} &nbsp; <i class="fas fa-wallet"></i> Efectivo: S/ ${efectivo.toFixed(2)} &nbsp; <i class="fas fa-credit-card"></i> Tarjeta: S/ ${tarjeta.toFixed(2)}</p><p><i class="fas fa-chart-line"></i> Total ventas: ${ventas.length}</p>`;
+    ventas.forEach(v => {
+      total += v.precio;
+      if (v.pago === "Yape") yape += v.precio;
+      else if (v.pago === "Efectivo") efectivo += v.precio;
+      else tarjeta += v.precio;
+    });
+    document.getElementById("totalResumen").innerHTML = `
+      <p><strong>Total general:</strong> S/ ${total.toFixed(2)}</p>
+      <p>Yape: S/ ${yape.toFixed(2)} &nbsp; Efectivo: S/ ${efectivo.toFixed(2)} &nbsp; Tarjeta: S/ ${tarjeta.toFixed(2)}</p>
+      <p>Total ventas: ${ventas.length}</p>`;
+    
     const marcas = {};
     ventas.forEach(v => marcas[v.marca] = (marcas[v.marca] || 0) + v.precio);
-    let topMarca = Object.entries(marcas).sort((a,b)=>b[1]-a[1])[0];
-    document.getElementById("statsDetalle").innerHTML = `<i class="fas fa-trophy"></i> <strong>Marca estrella:</strong> ${topMarca ? `${topMarca[0]} · S/ ${topMarca[1].toFixed(2)}` : "—"}<br><i class="fas fa-dog"></i> <strong>Chiguagua de la suerte:</strong> 🐕‍🦺 "¡Ventas con amor!"<br><i class="fas fa-chart-simple"></i> Promedio: S/ ${ventas.length ? (total/ventas.length).toFixed(2) : 0}`;
+    const topMarca = Object.entries(marcas).sort((a,b)=>b[1]-a[1])[0];
+    document.getElementById("statsDetalle").innerHTML = `
+      <i class="fas fa-trophy"></i> <strong>Marca estrella:</strong> ${topMarca ? `${topMarca[0]} · S/ ${topMarca[1].toFixed(2)}` : "—"}<br>
+      <i class="fas fa-chart-simple"></i> Promedio: S/ ${ventas.length ? (total/ventas.length).toFixed(2) : 0}`;
+    
     const ctx = document.getElementById('ventasChart').getContext('2d');
-    if(chartInstance) chartInstance.destroy();
-    if(ctx) chartInstance = new Chart(ctx, { type: 'doughnut', data: { labels: ['Yape', 'Efectivo', 'Tarjeta'], datasets: [{ data: [yape, efectivo, tarjeta], backgroundColor: ['#ff7aa2', '#ffb347', '#9b59b6'], borderWidth: 0 }] }, options: { responsive: true, plugins: { legend: { position: 'bottom' }, tooltip: { callbacks: { label: (ctx) => ` S/ ${ctx.raw.toFixed(2)}` } } } } });
+    if (chartInstance) chartInstance.destroy();
+    chartInstance = new Chart(ctx, {
+      type: 'doughnut',
+      data: { labels: ['Yape', 'Efectivo', 'Tarjeta'], datasets: [{ data: [yape, efectivo, tarjeta], backgroundColor: ['#ff7aa2', '#ffb347', '#9b59b6'], borderWidth: 0 }] },
+      options: { responsive: true, plugins: { legend: { position: 'bottom' }, tooltip: { callbacks: { label: (ctx) => ` S/ ${ctx.raw.toFixed(2)}` } } } }
+    });
   }
 
-  function generarPDFmejorado() { if(ventas.length===0){alert("Sin ventas");return;} const {jsPDF}=window.jspdf; const doc=new jsPDF(); doc.setFillColor(255,240,245); doc.rect(0,0,210,297,'F'); doc.setFont("helvetica","bold"); doc.setFontSize(28); doc.setTextColor(255,77,136); doc.text("NAMORE",105,25,{align:"center"}); doc.setFontSize(12); doc.setTextColor(180,80,110); doc.text("Elegancia y pasión",105,35,{align:"center"}); doc.setFontSize(9); doc.text("Reporte de Ventas - "+new Date().toLocaleDateString('es-PE'),105,45,{align:"center"}); doc.setDrawColor(255,170,200); doc.line(20,52,190,52); const colX=[20,55,95,135,160]; let y=65; doc.setFillColor(255,220,230); doc.rect(colX[0]-1,y-5,190-(colX[0]-1),7,'F'); doc.setFont("helvetica","bold"); doc.setFontSize(10); doc.setTextColor(200,60,100); doc.text("Fecha",colX[0],y); doc.text("Producto",colX[1],y); doc.text("Marca",colX[2],y); doc.text("Precio",colX[3],y); doc.text("Pago",colX[4],y); doc.line(colX[0]-1,y-5,190,y-5); doc.line(colX[0]-1,y+2,190,y+2); y+=6; doc.setFont("helvetica","normal"); doc.setFontSize(9.5); let total=0; for(const v of ventas){ total+=v.precio; doc.text(v.fecha || '',colX[0],y); let prod=v.producto.length>18?v.producto.slice(0,15)+"...":v.producto; doc.text(prod,colX[1],y); doc.text(v.marca,colX[2],y); doc.text(`S/ ${v.precio.toFixed(2)}`,colX[3],y); doc.text(v.pago,colX[4],y); y+=6;} y+=8; doc.setFont("helvetica","bold"); doc.setFontSize(12); doc.setTextColor(255,77,136); doc.text(`TOTAL GENERAL: S/ ${total.toFixed(2)}`,20,y); let yape=ventas.filter(v=>v.pago==="Yape").reduce((a,b)=>a+b.precio,0); let efectivo=ventas.filter(v=>v.pago==="Efectivo").reduce((a,b)=>a+b.precio,0); let tarjeta=ventas.filter(v=>v.pago==="Tarjeta").reduce((a,b)=>a+b.precio,0); doc.setFont("helvetica","normal"); doc.setFontSize(10); doc.text(`Yape: S/ ${yape.toFixed(2)}     Efectivo: S/ ${efectivo.toFixed(2)}     Tarjeta: S/ ${tarjeta.toFixed(2)}`,20,y+7); doc.setFontSize(9); doc.text("Generado con amor NAMORE",105,y+16,{align:"center"}); doc.save("Namore_ventas.pdf"); }
+  function generarPDF() {
+    if (ventas.length === 0) { alert("Sin ventas"); return; }
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFillColor(255,240,245); doc.rect(0,0,210,297,'F');
+    doc.setFont("helvetica","bold"); doc.setFontSize(28); doc.setTextColor(255,77,136);
+    doc.text("NAMORE",105,25,{align:"center"});
+    doc.setFontSize(12); doc.setTextColor(180,80,110);
+    doc.text("Elegancia y pasión",105,35,{align:"center"});
+    doc.setFontSize(9); doc.text("Reporte de Ventas - "+getPeruDateVisible(),105,45,{align:"center"});
+    doc.setDrawColor(255,170,200); doc.line(20,52,190,52);
+    const colX=[20,55,95,135,160]; let y=65;
+    doc.setFillColor(255,220,230); doc.rect(colX[0]-1,y-5,190-(colX[0]-1),7,'F');
+    doc.setFont("helvetica","bold"); doc.setFontSize(10); doc.setTextColor(200,60,100);
+    doc.text("Fecha",colX[0],y); doc.text("Producto",colX[1],y); doc.text("Marca",colX[2],y); doc.text("Precio",colX[3],y); doc.text("Pago",colX[4],y);
+    y+=6; doc.setFont("helvetica","normal"); doc.setFontSize(9.5);
+    let total=0;
+    for(const v of ventas){
+      total+=v.precio;
+      doc.text(v.fecha || '',colX[0],y);
+      let prod=v.producto.length>18?v.producto.slice(0,15)+"...":v.producto;
+      doc.text(prod,colX[1],y); doc.text(v.marca,colX[2],y);
+      doc.text(`S/ ${v.precio.toFixed(2)}`,colX[3],y); doc.text(v.pago,colX[4],y);
+      y+=6;
+    }
+    y+=8; doc.setFont("helvetica","bold"); doc.setFontSize(12); doc.setTextColor(255,77,136);
+    doc.text(`TOTAL: S/ ${total.toFixed(2)}`,20,y);
+    doc.save("Namore_ventas.pdf");
+  }
 
-  // ========== HISTORIAL MEJORADO: cada cierre individual con botón eliminar ==========
+  // ========== HISTORIAL CON ELIMINACIÓN INDIVIDUAL ==========
   async function cargarHistorial() {
-    if (!db) return;
-    try {
-      const snap = await getDocs(collection(db, "cierres"));
-      allCierres = [];
-      snap.forEach(d => allCierres.push({ id: d.id, ...d.data() }));
-      // Ordenar por fechaReal descendente (más reciente primero)
-      allCierres.sort((a,b) => (b.fechaReal || 0) - (a.fechaReal || 0));
-      aplicarFiltroYRender();
-    } catch (error) { console.error(error); alert("Error al cargar historial."); }
+    const snap = await getDocs(collection(db, "cierres"));
+    allCierres = [];
+    snap.forEach(d => allCierres.push({ id: d.id, ...d.data() }));
+    allCierres.sort((a,b) => (b.fechaReal || 0) - (a.fechaReal || 0));
+    aplicarFiltro();
   }
 
-  function aplicarFiltroYRender() {
+  function aplicarFiltro() {
     const filtro = document.getElementById("filtroFecha").value;
     let cierresMostrar = [...allCierres];
-    if (filtro) {
-      cierresMostrar = cierresMostrar.filter(c => c.fecha === filtro);
-    }
+    if (filtro) cierresMostrar = cierresMostrar.filter(c => c.fecha === filtro);
     renderHistorial(cierresMostrar);
   }
 
   function renderHistorial(cierres) {
     const cont = document.getElementById("historialLista");
     cont.innerHTML = "";
-    if (cierres.length === 0) { cont.innerHTML = '<div class="no-data"><i class="fas fa-box-open"></i> No hay cierres registrados</div>'; return; }
-    
+    if (cierres.length === 0) { cont.innerHTML = '<div class="no-data">No hay cierres registrados</div>'; return; }
     cierres.forEach(cierre => {
-      // Usar fechaVisible si existe, si no, formatear fecha guardada
       let fechaDisplay = cierre.fechaVisible;
       if (!fechaDisplay) {
-        // Si no existe fechaVisible (cierres antiguos), la generamos a partir de cierre.fecha (YYYY-MM-DD)
-        try {
-          const partes = cierre.fecha.split('-');
-          if (partes.length === 3) {
-            const fechaObj = new Date(Date.UTC(partes[0], partes[1]-1, partes[2]));
-            fechaDisplay = fechaObj.toLocaleDateString('es-PE', { year:'numeric', month:'long', day:'numeric' });
-          } else {
-            fechaDisplay = cierre.fecha;
-          }
-        } catch(e) { fechaDisplay = cierre.fecha; }
+        const partes = cierre.fecha.split('-');
+        if (partes.length === 3) {
+          const fechaObj = new Date(Date.UTC(partes[0], partes[1]-1, partes[2]));
+          fechaDisplay = fechaObj.toLocaleDateString('es-PE', { year:'numeric', month:'long', day:'numeric' });
+        } else fechaDisplay = cierre.fecha;
       }
-      
       const div = document.createElement("div");
       div.className = "cierre-item";
       div.innerHTML = `
@@ -522,7 +484,7 @@
           <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
             <span class="cierre-fecha"><i class="fas fa-calendar-alt"></i> ${fechaDisplay}</span>
             <span class="cierre-cantidad">(${cierre.cantidadVentas} ventas)</span>
-            <button class="delete-cierre-btn" data-id="${cierre.id}" title="Eliminar este cierre"><i class="fas fa-trash-alt"></i></button>
+            <button class="delete-cierre-btn" data-id="${cierre.id}" title="Eliminar cierre"><i class="fas fa-trash-alt"></i></button>
           </div>
           <div><span class="cierre-total">S/ ${cierre.total.toFixed(2)}</span> <i class="fas fa-chevron-down toggle-icon"></i></div>
         </div>
@@ -532,9 +494,7 @@
       const header = div.querySelector(".cierre-header");
       const icon = header.querySelector(".toggle-icon");
       const deleteBtn = div.querySelector(".delete-cierre-btn");
-      
-      // Llenar ventas del cierre
-      if (cierre.ventas && cierre.ventas.length > 0) {
+      if (cierre.ventas && cierre.ventas.length) {
         cierre.ventas.forEach(v => {
           const item = document.createElement("div");
           item.className = "historial-venta-item";
@@ -549,58 +509,26 @@
           `;
           ventasDiv.appendChild(item);
         });
-      } else {
-        ventasDiv.innerHTML = '<div class="no-data" style="padding:10px;">Sin ventas</div>';
-      }
-      
-      // Evento para expandir/colapsar
+      } else ventasDiv.innerHTML = '<div class="no-data" style="padding:10px;">Sin ventas</div>';
       header.addEventListener("click", (e) => {
-        // Evitar que el click en el botón eliminar también dispare el toggle
         if (e.target.closest('.delete-cierre-btn')) return;
         ventasDiv.classList.toggle("mostrar");
         icon.classList.toggle("rotated");
       });
-      
-      // Evento para eliminar el cierre
       deleteBtn.addEventListener("click", async (e) => {
         e.stopPropagation();
-        const confirmar = confirm(`¿Eliminar permanentemente el cierre del ${fechaDisplay}? Esta acción no se puede deshacer.`);
-        if (confirmar) {
-          await eliminarCierre(cierre.id);
+        if (confirm(`¿Eliminar permanentemente el cierre del ${fechaDisplay}?`)) {
+          await deleteDoc(doc(db, "cierres", cierre.id));
+          allCierres = allCierres.filter(c => c.id !== cierre.id);
+          aplicarFiltro();
         }
       });
-      
       cont.appendChild(div);
     });
   }
-  
-  // Función para eliminar un cierre individual de Firestore
-  async function eliminarCierre(id) {
-    if (!db) return;
-    try {
-      await deleteDoc(doc(db, "cierres", id));
-      // Actualizar lista local
-      allCierres = allCierres.filter(c => c.id !== id);
-      aplicarFiltroYRender();
-      // Si el panel historial está visible, refrescamos
-      if (historialVisible) {
-        // ya se actualizó con aplicarFiltroYRender
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Error al eliminar el cierre.");
-    }
-  }
 
-  function filtrarHistorial() {
-    aplicarFiltroYRender();
-  }
-
-  function resetFiltroHistorial() {
-    document.getElementById("filtroFecha").value = "";
-    aplicarFiltroYRender();
-  }
-
+  function filtrarHistorial() { aplicarFiltro(); }
+  function resetFiltroHistorial() { document.getElementById("filtroFecha").value = ""; aplicarFiltro(); }
   function toggleHistorial() {
     const panel = document.getElementById("historialPanel");
     if (panel.style.display === "none") {
@@ -613,45 +541,37 @@
     }
   }
 
-  // ========== CALCULADORA MODAL (completamente funcional) ==========
-  let calcExpression = "";
-  function abrirCalculadora() { document.getElementById("calcModal").style.display = "flex"; calcExpression = ""; document.getElementById("calcDisplay").innerText = "0"; }
-  function cerrarCalculadora() { document.getElementById("calcModal").style.display = "none"; calcExpression = ""; document.getElementById("calcDisplay").innerText = "0"; }
-  function calcInput(val) { 
-    calcExpression += val; 
-    document.getElementById("calcDisplay").innerText = calcExpression; 
-  }
-  function calcClear() { calcExpression = ""; document.getElementById("calcDisplay").innerText = "0"; }
+  // ========== CALCULADORA ==========
+  let calcExpr = "";
+  function abrirCalculadora() { document.getElementById("calcModal").style.display = "flex"; calcExpr = ""; document.getElementById("calcDisplay").innerText = "0"; }
+  function cerrarCalculadora() { document.getElementById("calcModal").style.display = "none"; }
+  function calcInput(val) { calcExpr += val; document.getElementById("calcDisplay").innerText = calcExpr; }
+  function calcClear() { calcExpr = ""; document.getElementById("calcDisplay").innerText = "0"; }
   function calcResult() {
     try {
-      // Evaluar expresión matemática (evitar errores con división por cero)
-      let result = eval(calcExpression);
-      if (!isFinite(result)) throw new Error("Operación inválida");
+      let result = eval(calcExpr);
+      if (!isFinite(result)) throw new Error();
       result = parseFloat(result.toFixed(10));
       document.getElementById("calcDisplay").innerText = result;
-      calcExpression = result.toString();
-    } catch(e) { 
-      document.getElementById("calcDisplay").innerText = "Error"; 
-      calcExpression = ""; 
-    }
+      calcExpr = result.toString();
+    } catch(e) { document.getElementById("calcDisplay").innerText = "Error"; calcExpr = ""; }
   }
 
   // ========== INICIALIZACIÓN ==========
+  function escapeHtml(str) { return str ? str.replace(/[&<>]/g, m => m==='&'?'&amp;':m==='<'?'&lt;':'&gt;') : ''; }
+  function escapeAttr(str) { return str ? str.replace(/"/g, '&quot;') : ''; }
   document.getElementById("foto").addEventListener("change", e => document.getElementById("nombreFoto").innerText = e.target.files[0] ? "📸 lista" : "ninguna");
-  function actualizarFechaHoy() { 
-    document.getElementById("fechaHoy").innerHTML = new Date().toLocaleDateString('es-PE', { timeZone: 'America/Lima', day:'numeric', month:'long', year:'numeric' }); 
-  }
-  actualizarFechaHoy();
+  document.getElementById("fechaHoy").innerHTML = getPeruDateVisible();
   const frases = ["💖 Cada venta es un latido NAMORE", "🐶 Chiguaguas ❤️ moda", "✨ Brilla como diamante", "🌸 Hecho con dulzura", "🐾 Patitas de la suerte"];
   let idx = 0;
   setInterval(() => { idx = (idx+1)%frases.length; document.getElementById("fraseBonita").innerHTML = frases[idx]; }, 4000);
   document.getElementById("precio").addEventListener("keypress", e => { if(e.key==='Enter') agregarVenta(); });
   document.getElementById("producto").addEventListener("keypress", e => { if(e.key==='Enter') agregarVenta(); });
-  
+
   window.agregarVenta = agregarVenta;
   window.borrarTodo = borrarTodo;
   window.cerrarTienda = cerrarTienda;
-  window.generarPDFmejorado = generarPDFmejorado;
+  window.generarPDF = generarPDF;
   window.toggleHistorial = toggleHistorial;
   window.filtrarHistorial = filtrarHistorial;
   window.resetFiltroHistorial = resetFiltroHistorial;
@@ -661,8 +581,7 @@
   window.calcClear = calcClear;
   window.calcResult = calcResult;
 
-  if (db) cargarVentasFirestore();
-  else alert("Firebase no disponible.");
+  cargarVentas();
 </script>
 </body>
 </html>
