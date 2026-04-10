@@ -19,7 +19,6 @@
     body::before { content: "🐾🐶🐾❤️🐾"; position: fixed; bottom: 10px; right: 10px; font-size: 45px; opacity: 0.2; pointer-events: none; white-space: pre; z-index: 0; }
     body::after { content: "✨🌸✨"; position: fixed; top: 20px; left: 20px; font-size: 55px; opacity: 0.15; pointer-events: none; z-index: 0; }
 
-    /* Animaciones y transiciones premium */
     .glass-container {
       max-width: 1300px;
       margin: 0 auto;
@@ -101,7 +100,7 @@
     footer { text-align: center; margin-top: 30px; font-size: 0.8rem; color: #c07f98; }
     .badge-chi { background: #ffdce6; border-radius: 60px; padding: 2px 12px; font-size: 0.75rem; display: inline-block; }
 
-    /* Historial mejorado con transición suave */
+    /* Historial - cada cierre individual con botón eliminar */
     .historial-container {
       margin-top: 25px;
       border-top: 2px dashed #ffc2d4;
@@ -119,6 +118,8 @@
     .cierre-fecha { font-weight: bold; color: #c95a7a; font-size: 1.1rem; }
     .cierre-total { font-weight: bold; color: #ff4d88; }
     .cierre-cantidad { color: #b3567a; font-size: 0.85rem; margin-left: 10px; }
+    .delete-cierre-btn { background: none; border: none; color: #ff99b5; font-size: 1.2rem; cursor: pointer; transition: transform 0.2s; margin-left: 12px; }
+    .delete-cierre-btn:hover { transform: scale(1.2); color: #e63e74; }
     .cierre-ventas {
       padding: 12px;
       max-height: 0;
@@ -293,13 +294,20 @@
 
   let ventas = [];
   let online = true;
-  let allCierres = [];
+  let allCierres = [];      // Array de documentos de cierre (sin agrupar)
   let historialVisible = false;
+  let currentFilterDate = ""; // para mantener filtro
 
   window.addEventListener('online', () => { online = true; cargarVentasFirestore(); });
   window.addEventListener('offline', () => { online = false; alert("Sin conexión. Los cambios no se guardarán."); });
 
-  // ========== CRUD VENTAS (mejorado con fechaReal) ==========
+  // ========== FUNCIÓN PARA FECHA LOCAL PERÚ (YYYY-MM-DD) ==========
+  function getPeruDateYYYYMMDD() {
+    // Usamos la zona horaria de Lima para obtener la fecha correcta sin desfase UTC
+    return new Date().toLocaleDateString('en-CA', { timeZone: 'America/Lima' });
+  }
+
+  // ========== CRUD VENTAS ==========
   async function cargarVentasFirestore() {
     if (!db) return;
     try {
@@ -312,11 +320,12 @@
     } catch (error) { console.error(error); alert("Error cargando ventas."); }
   }
 
-  async function guardarVentaFinal(producto, marca, precio, pago, fecha, imagenData, observaciones) {
+  async function guardarVentaFinal(producto, marca, precio, pago, fechaVisible, imagenData, observaciones) {
     if (!db) return;
     try {
       const nueva = {
-        producto, marca, precio, pago, fecha,
+        producto, marca, precio, pago,
+        fecha: fechaVisible,           // fecha legible para mostrar (ej: "9 de abril de 2026")
         fechaReal: new Date().getTime(),
         imagen: imagenData || null,
         observaciones: observaciones || "",
@@ -330,7 +339,7 @@
   }
 
   async function eliminarVenta(id) {
-    if (!db || !confirm("¿Eliminar?")) return;
+    if (!db || !confirm("¿Eliminar esta venta?")) return;
     try {
       await deleteDoc(doc(db, "ventas", id));
       ventas = ventas.filter(v => v.id !== id);
@@ -353,7 +362,7 @@
   }
 
   async function borrarTodo() {
-    if (!db || !confirm("⚠️ Eliminar todas las ventas?")) return;
+    if (!db || !confirm("⚠️ Eliminar TODAS las ventas actuales? Esta acción no se puede deshacer.")) return;
     try {
       for (const v of ventas) await deleteDoc(doc(db, "ventas", v.id));
       ventas = [];
@@ -362,28 +371,35 @@
     } catch (error) { alert("Error al limpiar."); }
   }
 
+  // ========== CERRAR TIENDA (con fecha local Perú) ==========
   async function cerrarTienda() {
     if (!db) { alert("Firebase no disponible"); return; }
     if (ventas.length === 0) { alert("No hay ventas para cerrar."); return; }
     try {
       const total = ventas.reduce((s, v) => s + v.precio, 0);
-      const fechaForm = new Date().toISOString().split('T')[0];
+      // Fecha local Perú en formato YYYY-MM-DD (para filtros)
+      const fechaLocal = getPeruDateYYYYMMDD();
+      // Fecha visible para mostrar en el header del historial (formato legible)
+      const fechaVisible = new Date().toLocaleDateString('es-PE', { timeZone: 'America/Lima', year:'numeric', month:'long', day:'numeric' });
+      
       const cierre = {
-        fecha: fechaForm,
+        fecha: fechaLocal,               // YYYY-MM-DD para filtrar
+        fechaVisible: fechaVisible,     // texto legible
         fechaReal: new Date().getTime(),
         total: total,
-        ventas: ventas.map(v => ({ ...v })),
+        ventas: ventas.map(v => ({ ...v })), // copia completa incluyendo imágenes
         cantidadVentas: ventas.length,
         timestamp: new Date().toISOString()
       };
       await addDoc(collection(db, "cierres"), cierre);
+      // Eliminar las ventas actuales
       for (const v of ventas) await deleteDoc(doc(db, "ventas", v.id));
       ventas = [];
       mostrarVentas();
       actualizarGraficoYResumen();
       alert("✅ Día cerrado correctamente.");
       if (historialVisible) cargarHistorial();
-    } catch (error) { alert("Error al cerrar día."); }
+    } catch (error) { console.error(error); alert("Error al cerrar día."); }
   }
 
   // ========== UI VENTAS ==========
@@ -393,16 +409,17 @@
     let precio = parseFloat(document.getElementById("precio").value);
     const pago = document.getElementById("pago").value;
     const archivo = document.getElementById("foto").files[0];
-    const fecha = new Date().toLocaleDateString('es-PE');
+    // Fecha legible para mostrar en la venta (hora local Perú)
+    const fechaVisible = new Date().toLocaleDateString('es-PE', { timeZone: 'America/Lima', year:'numeric', month:'long', day:'numeric' });
     if(!producto) { alert("Producto vacío"); return; }
     if(isNaN(precio) || precio <= 0) { alert("Precio válido"); return; }
     precio = parseFloat(precio.toFixed(2));
     if(archivo) {
       const reader = new FileReader();
-      reader.onload = e => guardarVentaFinal(producto, marca, precio, pago, fecha, e.target.result, "");
+      reader.onload = e => guardarVentaFinal(producto, marca, precio, pago, fechaVisible, e.target.result, "");
       reader.readAsDataURL(archivo);
     } else {
-      guardarVentaFinal(producto, marca, precio, pago, fecha, null, "");
+      guardarVentaFinal(producto, marca, precio, pago, fechaVisible, null, "");
     }
     document.getElementById("producto").value = "";
     document.getElementById("precio").value = "";
@@ -420,7 +437,7 @@
       const obsHtml = v.observaciones ? `<div class="observacion-text"><i class="fas fa-pencil-alt"></i> ${escapeHtml(v.observaciones)}</div>` : '';
       li.innerHTML = `
         <div class="venta-info">
-          <strong>${v.fecha}</strong> · ${v.producto} · ${v.marca}<br>
+          <strong>${v.fecha || 'Sin fecha'}</strong> · ${v.producto} · ${v.marca}<br>
           <span class="badge-chi"><i class="fas fa-money-bill-wave"></i> S/ ${v.precio}</span> · <i class="fas fa-credit-card"></i> ${v.pago}
           ${obsHtml}
         </div>
@@ -453,54 +470,60 @@
     if(ctx) chartInstance = new Chart(ctx, { type: 'doughnut', data: { labels: ['Yape', 'Efectivo', 'Tarjeta'], datasets: [{ data: [yape, efectivo, tarjeta], backgroundColor: ['#ff7aa2', '#ffb347', '#9b59b6'], borderWidth: 0 }] }, options: { responsive: true, plugins: { legend: { position: 'bottom' }, tooltip: { callbacks: { label: (ctx) => ` S/ ${ctx.raw.toFixed(2)}` } } } } });
   }
 
-  function generarPDFmejorado() { if(ventas.length===0){alert("Sin ventas");return;} const {jsPDF}=window.jspdf; const doc=new jsPDF(); doc.setFillColor(255,240,245); doc.rect(0,0,210,297,'F'); doc.setFont("helvetica","bold"); doc.setFontSize(28); doc.setTextColor(255,77,136); doc.text("NAMORE",105,25,{align:"center"}); doc.setFontSize(12); doc.setTextColor(180,80,110); doc.text("Elegancia y pasión",105,35,{align:"center"}); doc.setFontSize(9); doc.text("Reporte de Ventas - "+new Date().toLocaleDateString('es-PE'),105,45,{align:"center"}); doc.setDrawColor(255,170,200); doc.line(20,52,190,52); const colX=[20,55,95,135,160]; let y=65; doc.setFillColor(255,220,230); doc.rect(colX[0]-1,y-5,190-(colX[0]-1),7,'F'); doc.setFont("helvetica","bold"); doc.setFontSize(10); doc.setTextColor(200,60,100); doc.text("Fecha",colX[0],y); doc.text("Producto",colX[1],y); doc.text("Marca",colX[2],y); doc.text("Precio",colX[3],y); doc.text("Pago",colX[4],y); doc.line(colX[0]-1,y-5,190,y-5); doc.line(colX[0]-1,y+2,190,y+2); y+=6; doc.setFont("helvetica","normal"); doc.setFontSize(9.5); let total=0; for(const v of ventas){ total+=v.precio; doc.text(v.fecha,colX[0],y); let prod=v.producto.length>18?v.producto.slice(0,15)+"...":v.producto; doc.text(prod,colX[1],y); doc.text(v.marca,colX[2],y); doc.text(`S/ ${v.precio.toFixed(2)}`,colX[3],y); doc.text(v.pago,colX[4],y); y+=6;} y+=8; doc.setFont("helvetica","bold"); doc.setFontSize(12); doc.setTextColor(255,77,136); doc.text(`TOTAL GENERAL: S/ ${total.toFixed(2)}`,20,y); let yape=ventas.filter(v=>v.pago==="Yape").reduce((a,b)=>a+b.precio,0); let efectivo=ventas.filter(v=>v.pago==="Efectivo").reduce((a,b)=>a+b.precio,0); let tarjeta=ventas.filter(v=>v.pago==="Tarjeta").reduce((a,b)=>a+b.precio,0); doc.setFont("helvetica","normal"); doc.setFontSize(10); doc.text(`Yape: S/ ${yape.toFixed(2)}     Efectivo: S/ ${efectivo.toFixed(2)}     Tarjeta: S/ ${tarjeta.toFixed(2)}`,20,y+7); doc.setFontSize(9); doc.text("Generado con amor NAMORE",105,y+16,{align:"center"}); doc.save("Namore_ventas.pdf"); }
+  function generarPDFmejorado() { if(ventas.length===0){alert("Sin ventas");return;} const {jsPDF}=window.jspdf; const doc=new jsPDF(); doc.setFillColor(255,240,245); doc.rect(0,0,210,297,'F'); doc.setFont("helvetica","bold"); doc.setFontSize(28); doc.setTextColor(255,77,136); doc.text("NAMORE",105,25,{align:"center"}); doc.setFontSize(12); doc.setTextColor(180,80,110); doc.text("Elegancia y pasión",105,35,{align:"center"}); doc.setFontSize(9); doc.text("Reporte de Ventas - "+new Date().toLocaleDateString('es-PE'),105,45,{align:"center"}); doc.setDrawColor(255,170,200); doc.line(20,52,190,52); const colX=[20,55,95,135,160]; let y=65; doc.setFillColor(255,220,230); doc.rect(colX[0]-1,y-5,190-(colX[0]-1),7,'F'); doc.setFont("helvetica","bold"); doc.setFontSize(10); doc.setTextColor(200,60,100); doc.text("Fecha",colX[0],y); doc.text("Producto",colX[1],y); doc.text("Marca",colX[2],y); doc.text("Precio",colX[3],y); doc.text("Pago",colX[4],y); doc.line(colX[0]-1,y-5,190,y-5); doc.line(colX[0]-1,y+2,190,y+2); y+=6; doc.setFont("helvetica","normal"); doc.setFontSize(9.5); let total=0; for(const v of ventas){ total+=v.precio; doc.text(v.fecha || '',colX[0],y); let prod=v.producto.length>18?v.producto.slice(0,15)+"...":v.producto; doc.text(prod,colX[1],y); doc.text(v.marca,colX[2],y); doc.text(`S/ ${v.precio.toFixed(2)}`,colX[3],y); doc.text(v.pago,colX[4],y); y+=6;} y+=8; doc.setFont("helvetica","bold"); doc.setFontSize(12); doc.setTextColor(255,77,136); doc.text(`TOTAL GENERAL: S/ ${total.toFixed(2)}`,20,y); let yape=ventas.filter(v=>v.pago==="Yape").reduce((a,b)=>a+b.precio,0); let efectivo=ventas.filter(v=>v.pago==="Efectivo").reduce((a,b)=>a+b.precio,0); let tarjeta=ventas.filter(v=>v.pago==="Tarjeta").reduce((a,b)=>a+b.precio,0); doc.setFont("helvetica","normal"); doc.setFontSize(10); doc.text(`Yape: S/ ${yape.toFixed(2)}     Efectivo: S/ ${efectivo.toFixed(2)}     Tarjeta: S/ ${tarjeta.toFixed(2)}`,20,y+7); doc.setFontSize(9); doc.text("Generado con amor NAMORE",105,y+16,{align:"center"}); doc.save("Namore_ventas.pdf"); }
 
-  // ========== HISTORIAL MEJORADO - AGRUPACIÓN POR FECHA ==========
+  // ========== HISTORIAL MEJORADO: cada cierre individual con botón eliminar ==========
   async function cargarHistorial() {
     if (!db) return;
     try {
       const snap = await getDocs(collection(db, "cierres"));
       allCierres = [];
       snap.forEach(d => allCierres.push({ id: d.id, ...d.data() }));
-      // Agrupar por fecha (YYYY-MM-DD)
-      const grupos = new Map();
-      allCierres.forEach(cierre => {
-        const fecha = cierre.fecha;
-        if (!grupos.has(fecha)) {
-          grupos.set(fecha, {
-            fecha: fecha,
-            fechaReal: cierre.fechaReal || 0,
-            total: 0,
-            cantidadVentas: 0,
-            ventas: []
-          });
-        }
-        const grupo = grupos.get(fecha);
-        grupo.total += cierre.total;
-        grupo.cantidadVentas += cierre.cantidadVentas;
-        if (cierre.ventas && Array.isArray(cierre.ventas)) {
-          grupo.ventas.push(...cierre.ventas);
-        }
-      });
-      // Convertir a array y ordenar por fechaReal descendente
-      let cierresAgrupados = Array.from(grupos.values());
-      cierresAgrupados.sort((a,b) => (b.fechaReal || 0) - (a.fechaReal || 0));
-      renderHistorial(cierresAgrupados);
+      // Ordenar por fechaReal descendente (más reciente primero)
+      allCierres.sort((a,b) => (b.fechaReal || 0) - (a.fechaReal || 0));
+      aplicarFiltroYRender();
     } catch (error) { console.error(error); alert("Error al cargar historial."); }
+  }
+
+  function aplicarFiltroYRender() {
+    const filtro = document.getElementById("filtroFecha").value;
+    let cierresMostrar = [...allCierres];
+    if (filtro) {
+      cierresMostrar = cierresMostrar.filter(c => c.fecha === filtro);
+    }
+    renderHistorial(cierresMostrar);
   }
 
   function renderHistorial(cierres) {
     const cont = document.getElementById("historialLista");
     cont.innerHTML = "";
     if (cierres.length === 0) { cont.innerHTML = '<div class="no-data"><i class="fas fa-box-open"></i> No hay cierres registrados</div>'; return; }
+    
     cierres.forEach(cierre => {
-      const fechaObj = new Date(cierre.fecha);
-      const fechaDisplay = fechaObj.toLocaleDateString('es-PE', { year:'numeric', month:'long', day:'numeric' });
+      // Usar fechaVisible si existe, si no, formatear fecha guardada
+      let fechaDisplay = cierre.fechaVisible;
+      if (!fechaDisplay) {
+        // Si no existe fechaVisible (cierres antiguos), la generamos a partir de cierre.fecha (YYYY-MM-DD)
+        try {
+          const partes = cierre.fecha.split('-');
+          if (partes.length === 3) {
+            const fechaObj = new Date(Date.UTC(partes[0], partes[1]-1, partes[2]));
+            fechaDisplay = fechaObj.toLocaleDateString('es-PE', { year:'numeric', month:'long', day:'numeric' });
+          } else {
+            fechaDisplay = cierre.fecha;
+          }
+        } catch(e) { fechaDisplay = cierre.fecha; }
+      }
+      
       const div = document.createElement("div");
       div.className = "cierre-item";
       div.innerHTML = `
         <div class="cierre-header">
-          <div><span class="cierre-fecha"><i class="fas fa-calendar-alt"></i> ${fechaDisplay}</span> <span class="cierre-cantidad">(${cierre.cantidadVentas} ventas)</span></div>
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <span class="cierre-fecha"><i class="fas fa-calendar-alt"></i> ${fechaDisplay}</span>
+            <span class="cierre-cantidad">(${cierre.cantidadVentas} ventas)</span>
+            <button class="delete-cierre-btn" data-id="${cierre.id}" title="Eliminar este cierre"><i class="fas fa-trash-alt"></i></button>
+          </div>
           <div><span class="cierre-total">S/ ${cierre.total.toFixed(2)}</span> <i class="fas fa-chevron-down toggle-icon"></i></div>
         </div>
         <div class="cierre-ventas"></div>
@@ -508,6 +531,9 @@
       const ventasDiv = div.querySelector(".cierre-ventas");
       const header = div.querySelector(".cierre-header");
       const icon = header.querySelector(".toggle-icon");
+      const deleteBtn = div.querySelector(".delete-cierre-btn");
+      
+      // Llenar ventas del cierre
       if (cierre.ventas && cierre.ventas.length > 0) {
         cierre.ventas.forEach(v => {
           const item = document.createElement("div");
@@ -519,56 +545,60 @@
               <span class="badge-chi">S/ ${v.precio}</span> · ${v.pago}
               ${obsHtml}
             </div>
-            ${v.imagen ? `<img src="${v.imagen}" class="venta-img-preview" style="width:50px; height:50px; border-radius:15px; object-fit:cover;">` : '<i class="fas fa-camera" style="color:#ffb7cb;"></i>'}
+            ${v.imagen ? `<img src="${v.imagen}" class="venta-img-preview" style="width:50px; height:50px; border-radius:15px; object-fit:cover;">` : '<i class="fas fa-camera" style="color:#ffb7cb; font-size:1.4rem;"></i>'}
           `;
           ventasDiv.appendChild(item);
         });
       } else {
         ventasDiv.innerHTML = '<div class="no-data" style="padding:10px;">Sin ventas</div>';
       }
-      header.addEventListener("click", () => {
+      
+      // Evento para expandir/colapsar
+      header.addEventListener("click", (e) => {
+        // Evitar que el click en el botón eliminar también dispare el toggle
+        if (e.target.closest('.delete-cierre-btn')) return;
         ventasDiv.classList.toggle("mostrar");
         icon.classList.toggle("rotated");
       });
+      
+      // Evento para eliminar el cierre
+      deleteBtn.addEventListener("click", async (e) => {
+        e.stopPropagation();
+        const confirmar = confirm(`¿Eliminar permanentemente el cierre del ${fechaDisplay}? Esta acción no se puede deshacer.`);
+        if (confirmar) {
+          await eliminarCierre(cierre.id);
+        }
+      });
+      
       cont.appendChild(div);
     });
   }
+  
+  // Función para eliminar un cierre individual de Firestore
+  async function eliminarCierre(id) {
+    if (!db) return;
+    try {
+      await deleteDoc(doc(db, "cierres", id));
+      // Actualizar lista local
+      allCierres = allCierres.filter(c => c.id !== id);
+      aplicarFiltroYRender();
+      // Si el panel historial está visible, refrescamos
+      if (historialVisible) {
+        // ya se actualizó con aplicarFiltroYRender
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Error al eliminar el cierre.");
+    }
+  }
 
   function filtrarHistorial() {
-    const fechaFiltro = document.getElementById("filtroFecha").value;
-    if (!fechaFiltro) {
-      cargarHistorial(); // recarga completo con agrupación
-      return;
-    }
-    // Filtrar los cierres originales por fecha, luego agrupar
-    const filtrados = allCierres.filter(c => c.fecha === fechaFiltro);
-    // Agrupar los filtrados por fecha (aunque sea una sola)
-    const grupos = new Map();
-    filtrados.forEach(cierre => {
-      const fecha = cierre.fecha;
-      if (!grupos.has(fecha)) {
-        grupos.set(fecha, {
-          fecha: fecha,
-          fechaReal: cierre.fechaReal || 0,
-          total: 0,
-          cantidadVentas: 0,
-          ventas: []
-        });
-      }
-      const grupo = grupos.get(fecha);
-      grupo.total += cierre.total;
-      grupo.cantidadVentas += cierre.cantidadVentas;
-      if (cierre.ventas && Array.isArray(cierre.ventas)) {
-        grupo.ventas.push(...cierre.ventas);
-      }
-    });
-    const cierresAgrupados = Array.from(grupos.values());
-    renderHistorial(cierresAgrupados);
+    aplicarFiltroYRender();
   }
 
   function resetFiltroHistorial() {
     document.getElementById("filtroFecha").value = "";
-    cargarHistorial();
+    aplicarFiltroYRender();
   }
 
   function toggleHistorial() {
@@ -583,26 +613,41 @@
     }
   }
 
-  // ========== CALCULADORA MODAL ==========
+  // ========== CALCULADORA MODAL (completamente funcional) ==========
   let calcExpression = "";
-  function abrirCalculadora() { document.getElementById("calcModal").style.display = "flex"; }
+  function abrirCalculadora() { document.getElementById("calcModal").style.display = "flex"; calcExpression = ""; document.getElementById("calcDisplay").innerText = "0"; }
   function cerrarCalculadora() { document.getElementById("calcModal").style.display = "none"; calcExpression = ""; document.getElementById("calcDisplay").innerText = "0"; }
-  function calcInput(val) { calcExpression += val; document.getElementById("calcDisplay").innerText = calcExpression; }
+  function calcInput(val) { 
+    calcExpression += val; 
+    document.getElementById("calcDisplay").innerText = calcExpression; 
+  }
   function calcClear() { calcExpression = ""; document.getElementById("calcDisplay").innerText = "0"; }
   function calcResult() {
-    try { let result = eval(calcExpression); document.getElementById("calcDisplay").innerText = result; calcExpression = result.toString(); }
-    catch(e) { document.getElementById("calcDisplay").innerText = "Error"; calcExpression = ""; }
+    try {
+      // Evaluar expresión matemática (evitar errores con división por cero)
+      let result = eval(calcExpression);
+      if (!isFinite(result)) throw new Error("Operación inválida");
+      result = parseFloat(result.toFixed(10));
+      document.getElementById("calcDisplay").innerText = result;
+      calcExpression = result.toString();
+    } catch(e) { 
+      document.getElementById("calcDisplay").innerText = "Error"; 
+      calcExpression = ""; 
+    }
   }
 
   // ========== INICIALIZACIÓN ==========
   document.getElementById("foto").addEventListener("change", e => document.getElementById("nombreFoto").innerText = e.target.files[0] ? "📸 lista" : "ninguna");
-  function actualizarFechaHoy() { document.getElementById("fechaHoy").innerHTML = new Date().toLocaleDateString('es-PE', { day:'numeric', month:'long', year:'numeric' }); }
+  function actualizarFechaHoy() { 
+    document.getElementById("fechaHoy").innerHTML = new Date().toLocaleDateString('es-PE', { timeZone: 'America/Lima', day:'numeric', month:'long', year:'numeric' }); 
+  }
   actualizarFechaHoy();
   const frases = ["💖 Cada venta es un latido NAMORE", "🐶 Chiguaguas ❤️ moda", "✨ Brilla como diamante", "🌸 Hecho con dulzura", "🐾 Patitas de la suerte"];
   let idx = 0;
   setInterval(() => { idx = (idx+1)%frases.length; document.getElementById("fraseBonita").innerHTML = frases[idx]; }, 4000);
   document.getElementById("precio").addEventListener("keypress", e => { if(e.key==='Enter') agregarVenta(); });
   document.getElementById("producto").addEventListener("keypress", e => { if(e.key==='Enter') agregarVenta(); });
+  
   window.agregarVenta = agregarVenta;
   window.borrarTodo = borrarTodo;
   window.cerrarTienda = cerrarTienda;
